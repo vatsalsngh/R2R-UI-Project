@@ -37,16 +37,16 @@ function renderTable(container, heading, data, filterValue) {
 
 function handleIconClick(type, pageName) {
     const fileMap = {
-        kpi: 'data/kpi.csv',
-        analysis: 'data/analysis.csv',
-        data: 'data/data.csv',
-        others: 'data/others.csv'
+        'leading-practices': 'data/leading-practices.csv',
+        'kpis': 'data/kpis.csv',
+        'persona-models': 'data/persona-models.csv',
+        'activity-placement': 'data/activity-placement.csv'
     };
     const headingMap = {
-        kpi: 'KPI',
-        analysis: 'Analysis',
-        data: 'Data',
-        others: 'Others'
+        'leading-practices': 'Leading Practices',
+        'kpis': 'KPIs',
+        'persona-models': 'Persona Models',
+        'activity-placement': 'Activity Placement'
     };
     const file = fileMap[type];
     const heading = headingMap[type];
