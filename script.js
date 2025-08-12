@@ -61,6 +61,31 @@ function handleIconClick(type, pageName) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Smooth scroll for internal nav links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Default to dark theme (no toggle)
+    document.documentElement.setAttribute('data-theme', 'dark');
+
+    // Animated reveal for cards
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.option-card').forEach(card => observer.observe(card));
+
     const iconBtns = document.querySelectorAll('.icon-btn');
     if (iconBtns.length > 0) {
         // Determine current page name from common heading locations, fallback to document title
