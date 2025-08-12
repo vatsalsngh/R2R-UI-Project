@@ -1,0 +1,37 @@
+Category,Metric,Value,Target
+Reconciliation,Timeliness %,96,97
+Reconciliation,Aging >30d,8,5
+Reconciliation,Variance Rate %,2,1
+Reconciliation,On-time Rate %,94,98
+Reconciliation,SLA Met %,92,95
+Reconciliation,Items Cleared,120,130
+Financial Close,Days to Close,5,4
+Financial Close,Tasks Completed,98,100
+Financial Close,Bottlenecks,3,0
+Financial Close,Adjustments Count,12,8
+Financial Close,On-time Milestones %,93,97
+Financial Close,Close Accuracy %,98,99
+Reporting,Completeness %,99,100
+Reporting,Accuracy %,97,99
+Reporting,Timeliness %,95,98
+Reporting,Cycle Time (hrs),6,4
+Reporting,Reviews Completed,28,30
+Reporting,Dashboards Updated,12,12
+Intercompany,Discrepancies,2,0
+Intercompany,Mismatches,4,0
+Intercompany,Settlements,10,12
+Intercompany,Open Items,7,3
+Intercompany,Recharges Posted,32,35
+Intercompany,Invoices Cleared,25,28
+Fixed Assets,Audit Score %,90,95
+Fixed Assets,Capitalizations,18,20
+Fixed Assets,Retirements,4,5
+Fixed Assets,Transfers Processed,7,10
+Fixed Assets,Depreciation Runs,3,3
+Fixed Assets,Reconciled Assets %,92,96
+Accounts Reconciliation,Exceptions,3,1
+Accounts Reconciliation,Accounts Balanced %,88,94
+Accounts Reconciliation,High-risk Accounts,5,2
+Accounts Reconciliation,Outstanding Items,14,8
+Accounts Reconciliation,Auto-reconciled %,62,70
+Accounts Reconciliation,Manual Reconciliations,38,25

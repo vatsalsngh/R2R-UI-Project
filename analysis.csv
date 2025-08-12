@@ -1,0 +1,37 @@
+Category,Observation,Status
+Journal Entry,High volume around quarter-end,Review
+Journal Entry,Recurring adjustment pattern,Investigate
+Journal Entry,Top 5 accounts impacted,Review
+Journal Entry,Segregation of duties exceptions,Remediate
+Journal Entry,Backdated entries detected,Investigate
+Journal Entry,Large entries require approval,Action Needed
+Reconciliation,Long tail of open items,Investigate
+Reconciliation,Multiple owners per account,Clarify
+Reconciliation,Ageing trend worsening,Review
+Reconciliation,Auto-recon opportunities,Analyze
+Reconciliation,Policy deviations observed,Remediate
+Reconciliation,Documentation gaps,Fix
+Reporting,Multiple versions submitted,Review
+Reporting,Late submissions concentrated in BU-3,Investigate
+Reporting,Manual KPI compilation,Automate
+Reporting,Formula inconsistencies found,Fix
+Reporting,Unmapped cost centers,Map
+Reporting,Missing commentary fields,Add
+Intercompany,Netting schedule slippages,Investigate
+Intercompany,FX rate misalignments,Fix
+Intercompany,Counterparty timing differences,Analyze
+Intercompany,Unbilled recharges,Bill
+Intercompany,Workflow approvals pending,Clear
+Intercompany,Aging >60d trend,Reduce
+Fixed Assets,Unreconciled sub-ledger items,Investigate
+Fixed Assets,Useful life assumptions outdated,Review
+Fixed Assets,Capex spike in Q2,Analyze
+Fixed Assets,Asset tagging incomplete,Complete
+Fixed Assets,Impairment indicators flagged,Assess
+Fixed Assets,Depreciation method mix inconsistent,Standardize
+Accounts Reconciliation,High exception rate in AP,Remediate
+Accounts Reconciliation,Duplicate accounts found,Merge
+Accounts Reconciliation,Reconciliation frequency too low,Increase
+Accounts Reconciliation,Owner coverage gaps,Assign
+Accounts Reconciliation,Template variance across teams,Standardize
+Accounts Reconciliation,Missing supporting evidence,Enforce
