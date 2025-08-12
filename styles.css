@@ -28,6 +28,7 @@ html, body {
   --shadow-md: 0 14px 34px rgba(0, 0, 0, 0.35);
   /* Ensure hero heading is dark enough over light gradient */
   --hero-heading: #0b1220;
+  --connector-color: color-mix(in srgb, var(--brand-contrast) 40%, var(--text) 60%);
 }
 
 body {
@@ -159,6 +160,57 @@ body {
   padding: 3em 2em 2.5em 2em;
   text-align: center;
 }
+.flow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2em 1.2em;
+  align-items: stretch;
+  overflow: hidden; /* avoid any horizontal scroll from connectors */
+}
+.flow-item { position: relative; }
+/* Base reset for connector pseudos */
+.flow-item::after, .flow-item::before { content: ""; position: absolute; opacity: 0.6; }
+/* Horizontal connectors (right) for 1→2, 2→3 and 7→8, 8→9 */
+.flow-item:nth-child(1)::after,
+.flow-item:nth-child(2)::after,
+.flow-item:nth-child(7)::after,
+.flow-item:nth-child(8)::after {
+  top: 50%;
+  right: -38px;
+  width: 38px;
+  height: 0;
+  border-top: 2px solid var(--connector-color);
+}
+/* Horizontal connectors (left) for 6→5 and 5→4 */
+.flow-item:nth-child(6)::after,
+.flow-item:nth-child(5)::after {
+  top: 50%;
+  left: -38px;
+  width: 38px;
+  height: 0;
+  border-top: 2px solid var(--connector-color);
+}
+/* Vertical down connectors from 3 to 4 and 6 to 7 */
+.flow-item:nth-child(3)::before,
+.flow-item:nth-child(6)::before {
+  left: 50%;
+  bottom: -36px;
+  width: 0;
+  height: 36px;
+  transform: translateX(-50%);
+  border-left: 2px solid var(--connector-color);
+}
+/* No connectors from last item */
+.flow-item:nth-child(9)::after,
+.flow-item:nth-child(9)::before { display: none; }
+
+@media (max-width: 900px) {
+  .flow-grid { grid-template-columns: repeat(2, 1fr); }
+  .flow-item::after, .flow-item::before { display: none; } /* simplify arrows on small screens */
+}
+@media (max-width: 600px) {
+  .flow-grid { grid-template-columns: 1fr; }
+}
 .solutions-section h2 {
   font-size: 2em;
   margin-bottom: 1.5em;
@@ -171,6 +223,70 @@ body {
   gap: 2em;
   justify-content: center;
   margin-top: 2em;
+}
+.inline-flow {
+  display: flex;
+  align-items: stretch;
+  /* center the whole row */
+  justify-content: center;
+  /* Use a shared gap variable so we can size cards to fit exactly */
+  --inline-gap: 1.25rem;
+  gap: var(--inline-gap);
+  flex-wrap: nowrap;
+  /* avoid clipping the last items; we'll size cards to fit instead */
+  overflow: visible;
+  /* constrain width so we get side breathing room and true centering */
+  max-width: min(1200px, calc(100vw - 3rem));
+  margin-inline: auto;
+}
+.inline-flow .option-card {
+  /* 9 cards across: (100% - 8 gaps) / 9 */
+  flex: 0 0 calc((100% - (8 * var(--inline-gap))) / 9);
+  min-width: 0;          /* override base min-width so items can shrink */
+  max-width: none;       /* allow the calculated basis to apply fully */
+  padding: 0.8em 0.8em 0.7em 0.8em;
+  overflow: visible;     /* let connector arrows render outside */
+  z-index: 1;            /* keep cards above connector graphics */
+}
+.inline-flow .option-icon { font-size: 1.4em; }
+.inline-flow .option-title { font-size: 0.82em; line-height: 1.2; text-align: center; }
+
+/* tiny connectors with triangle heads between boxes (hidden on wrap) */
+.inline-flow .option-card:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  /* start at the card's right edge and fill the gap (minus arrow head) */
+  left: 100%;
+  width: calc(var(--inline-gap) - 6px);
+  height: 2px;
+  background: var(--connector-color);
+  transform: translateY(-50%);
+  opacity: 0.85;
+  z-index: 0;
+}
+.inline-flow .option-card:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  /* place arrow tip exactly at the next card's left edge */
+  left: calc(100% + var(--inline-gap) - 6px);
+  transform: translateY(-50%);
+  border-left: 6px solid var(--connector-color);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  opacity: 0.9;
+  z-index: 0;
+}
+
+@media (max-width: 1200px) { .inline-flow { --inline-gap: 0.6rem; } }
+@media (max-width: 1050px) { .inline-flow { --inline-gap: 0.5rem; } }
+@media (max-width: 980px)  { .inline-flow { --inline-gap: 0.45rem; } }
+@media (max-width: 900px) {
+  .inline-flow { flex-wrap: wrap; justify-content: center; }
+  .inline-flow .option-card { min-width: 44%; max-width: 44%; }
+  .inline-flow .option-card::before,
+  .inline-flow .option-card::after { display: none; }
 }
 .options-grid {
   display: flex;
@@ -186,6 +302,15 @@ body {
     align-items: center;
   }
 }
+.options-grid.compact { --compact-gap: 1.25rem; gap: var(--compact-gap); }
+.options-grid.compact .option-card {
+  width: clamp(100px, calc((min(1200px, 100vw - 3rem) - (8 * var(--compact-gap))) / 9), 132px);
+  min-width: 0;
+  max-width: none;
+  padding: 0.8em 0.8em 0.7em 0.8em;
+}
+.options-grid.compact .option-icon { font-size: 1.4em; }
+.options-grid.compact .option-title { font-size: 0.82em; line-height: 1.2; text-align: center; }
 .option-card {
   display: flex;
   flex-direction: column;
@@ -263,9 +388,9 @@ body {
     linear-gradient(135deg, color-mix(in srgb, var(--brand) 70%, #ffffff 0%), var(--accent)) border-box;
   border: 2px solid transparent;
   color: var(--brand-contrast);
-  border-radius: 14px;
-  padding: 0.6em 1.3em;
-  font-size: 1em;
+  border-radius: 10px;
+  padding: 0.36em 0.78em; /* ~40% smaller */
+  font-size: 0.6em;       /* ~40% smaller */
   cursor: pointer;
   text-decoration: none;
   font-weight: 800;
@@ -278,7 +403,7 @@ body {
     linear-gradient(color-mix(in srgb, var(--surface) 85%, #000 15%), color-mix(in srgb, var(--surface) 85%, #000 15%)) padding-box,
     linear-gradient(135deg, var(--accent), var(--brand)) border-box;
   color: var(--brand-contrast);
-  transform: translateY(-6px) scale(1.02);
+  transform: translateY(-4px) scale(1.02);
   box-shadow: var(--shadow-md);
 }
 .nav-controls button:focus-visible, .nav-controls .skip-link:focus-visible {
