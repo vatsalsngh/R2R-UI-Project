@@ -113,6 +113,23 @@
         </div>
     </main>
     <footer class="site-footer" id="site-footer"><div>© 2025 Finance Suite.</div><small>All rights reserved.</small></footer>
-    <script src="script.js" defer></script>
+        <script src="script.js" defer></script>
+        <script>
+        // Soft load animation: fade + upward translate with stagger
+        (function(){
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if(prefersReduced) return; // respect user preference
+            const cols = document.querySelectorAll('.r2r-matrix .r2r-column');
+            cols.forEach((col,i)=>{
+                col.classList.add('pre-enter');
+                // Stagger using --delay custom property
+                col.style.setProperty('--enter-delay', (i*90)+'ms');
+            });
+            window.requestAnimationFrame(()=>{
+                // Trigger reflow & start animation
+                setTimeout(()=>cols.forEach(c=>c.classList.add('enter')), 40);
+            });
+        })();
+        </script>
 </body>
 </html>
