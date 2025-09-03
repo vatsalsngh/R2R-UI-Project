@@ -31,6 +31,8 @@ html, body {
   /* Ensure hero heading is dark enough over light gradient */
   --hero-heading: #0b1220;
   --connector-color: color-mix(in srgb, var(--brand-contrast) 40%, var(--text) 60%);
+  /* Unified primary box text size (process items & option titles) */
+  --box-text-size: 0.88rem;
 }
 
 body {
@@ -268,7 +270,7 @@ main { flex: 1 0 auto; display: block; }
   z-index: 1;            /* keep cards above connector graphics */
 }
 .inline-flow .option-icon { font-size: 1.4em; }
-.inline-flow .option-title { font-size: 0.82em; line-height: 1.2; text-align: center; }
+.inline-flow .option-title { font-size: var(--box-text-size); line-height: 1.2; text-align: center; }
 
 /* tiny connectors with triangle heads between boxes (hidden on wrap) */
 .inline-flow .option-card:not(:last-child)::after {
@@ -329,7 +331,7 @@ main { flex: 1 0 auto; display: block; }
   padding: 0.8em 0.8em 0.7em 0.8em;
 }
 .options-grid.compact .option-icon { font-size: 1.4em; }
-.options-grid.compact .option-title { font-size: 0.82em; line-height: 1.2; text-align: center; }
+.options-grid.compact .option-title { font-size: var(--box-text-size); line-height: 1.2; text-align: center; }
 .option-card {
   display: flex;
   flex-direction: column;
@@ -366,7 +368,7 @@ main { flex: 1 0 auto; display: block; }
   margin-bottom: 0.5em;
 }
 .option-title {
-  font-size: 1.2em;
+  font-size: var(--box-text-size);
   font-weight: 800;
   margin-bottom: 0.3em;
   letter-spacing: 0.5px;
@@ -674,7 +676,7 @@ main { background: var(--surface); box-shadow: var(--shadow-sm); border-radius: 
 .r2r-matrix-wrapper { max-width: 100%; padding: 0.5em 0.6em 2em 0.6em; }
 .r2r-matrix { width: 100%; display: grid; gap: 0.55rem; grid-template-columns: repeat(9, minmax(0, 1fr)); padding: 0.4rem 0.15rem 0.55rem 0.15rem; box-sizing: border-box; }
 .r2r-column { background: var(--card-glass); border: var(--card-border); border-radius: 12px; padding: 0.5rem 0.4rem 0.6rem 0.4rem; display: flex; flex-direction: column; gap: 0.35rem; position: relative; box-shadow: var(--card-shadow); min-height: 100%; }
-.r2r-col-header { font-size: 0.72rem; font-weight: 800; text-align: center; background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 45%, transparent), color-mix(in srgb, var(--accent) 25%, transparent)); color: var(--brand-contrast); padding: 0.32rem 0.35rem 0.38rem 0.35rem; border-radius: 9px; line-height: 1.1; letter-spacing: 0.33px; position: relative; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-contrast) 15%, transparent); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.25rem; min-height:64px; height:64px; text-decoration:none; }
+.r2r-col-header { font-size: 0.95rem; font-weight: 800; text-align: center; background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 45%, transparent), color-mix(in srgb, var(--accent) 25%, transparent)); color: var(--brand-contrast); padding: 0.4rem 0.45rem 0.48rem 0.45rem; border-radius: 9px; line-height: 1.15; letter-spacing: 0.35px; position: relative; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-contrast) 15%, transparent); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.3rem; min-height:68px; height:68px; text-decoration:none; }
 .r2r-col-header:hover, .r2r-col-header:focus-visible { background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 60%, transparent), color-mix(in srgb, var(--accent) 38%, transparent)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-contrast) 10%, transparent), var(--shadow-sm); }
 .r2r-col-header:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 60%, transparent); outline-offset: 2px; }
 .r2r-icon { font-size:0.95rem; line-height:1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25)); margin-bottom:0.05rem; }
@@ -682,15 +684,54 @@ main { background: var(--surface); box-shadow: var(--shadow-sm); border-radius: 
 .r2r-col-header::after { content: ""; position: absolute; top: 50%; right: -10px; width: 10px; height: 2px; background: var(--connector-color); transform: translateY(-50%); opacity: 0.85; }
 .r2r-col-header::before { content: ""; position: absolute; top: 50%; right: -16px; transform: translateY(-50%); border-left: 6px solid var(--connector-color); border-top: 4px solid transparent; border-bottom: 4px solid transparent; opacity: 0.9; }
 .r2r-column:last-child .r2r-col-header::after, .r2r-column:last-child .r2r-col-header::before { display: none; }
-.process-item { background: color-mix(in srgb, var(--brand-contrast) 5%, var(--card-glass)); border: 1px solid color-mix(in srgb, var(--brand-contrast) 20%, transparent); color: var(--text); font-size: 0.7rem; font-weight: 600; padding: 0.55rem 0.4rem; border-radius: 6px; line-height: 1.18; letter-spacing: 0.3px; text-align: center; word-break: break-word; transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition); }
+.process-item { background: color-mix(in srgb, var(--brand-contrast) 5%, var(--card-glass)); border: 1px solid color-mix(in srgb, var(--brand-contrast) 20%, transparent); color: var(--text); font-size: var(--box-text-size); font-weight: 600; padding: 0.62rem 0.5rem; border-radius: 8px; line-height: 1.22; letter-spacing: 0.32px; text-align: center; word-break: break-word; transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition); }
 .process-item:hover { background: var(--brand); color: var(--brand-contrast); transform: translateY(-2px); box-shadow: var(--shadow-sm); cursor: default; }
 .process-item.process-link { cursor: pointer; text-decoration: none; display:block; }
 .process-item.process-link:hover { background: linear-gradient(135deg, var(--brand), var(--accent)); color: var(--brand-contrast); }
-@media (max-width: 1300px) { .r2r-matrix { gap: 0.5rem; } .r2r-col-header { font-size: 0.7rem; height:58px; min-height:58px; } .process-item { font-size: 0.66rem; } }
-@media (max-width: 900px) { .r2r-matrix { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } .r2r-col-header::after, .r2r-col-header::before { display: none; } .r2r-col-header { font-size: 0.76rem; height:62px; min-height:62px; } .process-item { font-size: 0.7rem; } }
-@media (max-width: 620px) { .r2r-matrix { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); } .r2r-col-header { font-size: 0.78rem; height:66px; min-height:66px; } .process-item { font-size: 0.72rem; } }
+@media (max-width: 1300px) { .r2r-matrix { gap: 0.55rem; } .r2r-col-header { font-size: 0.9rem; height:66px; min-height:66px; } }
+@media (max-width: 900px) { .r2r-matrix { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } .r2r-col-header::after, .r2r-col-header::before { display: none; } .r2r-col-header { font-size: 0.88rem; height:64px; min-height:64px; } }
+@media (max-width: 620px) { .r2r-matrix { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); } .r2r-col-header { font-size: 0.86rem; height:62px; min-height:62px; } }
 @media (prefers-reduced-motion: reduce) { .process-item, .r2r-column { transition: none; } }
 .visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px,1px,1px,1px); white-space: nowrap; }
+
+/* ========================= 1080p / Wide Screen Enhancements ========================= */
+/* Applied when body.wide-screen class is present (JS sets for >=1600px width) */
+body.wide-screen .solutions-section { max-width: 1680px; padding: 3.2em 3.2em 2.8em; }
+body.wide-screen main { border-radius: 28px; }
+body.wide-screen .section-title { font-size: 2.6rem; letter-spacing: 0.8px; }
+body.wide-screen .options-grid { gap: 2.2em 2.2em; }
+body.wide-screen .option-card { min-width: 260px; max-width: 320px; padding: 1.6em 1.6em 1.25em; font-size: 1.05em; }
+body.wide-screen .option-icon { font-size: 2.6em; }
+body.wide-screen .option-title { font-size: var(--box-text-size); }
+body.wide-screen .r2r-matrix-wrapper { padding: 1.2em 0.8em 2.4em; }
+body.wide-screen .r2r-matrix { gap: 0.75rem; }
+body.wide-screen .r2r-col-header { font-size: 0.78rem; min-height: 70px; height: 70px; }
+body.wide-screen .process-item { font-size: var(--box-text-size); padding: 0.6rem 0.45rem; }
+body.wide-screen .diagram-wrapper { min-height: 720px; }
+body.wide-screen .nodes-layer { grid-template-columns: repeat(30, 170px); gap: 16px 48px; }
+body.wide-screen .flow-node { padding: 0.65rem 0.6rem 0.95rem; }
+/* Subtle animated hover elevation more visible on large displays */
+body.wide-screen .option-card:hover { transform: translateY(-10px) scale(1.05); box-shadow: 0 22px 48px -10px rgba(0,0,0,0.55); }
+body.wide-screen .process-item:hover { transform: translateY(-3px); box-shadow: 0 10px 28px -8px rgba(0,0,0,0.4); }
+/* Improve readability by slightly increasing line heights at large scale */
+body.wide-screen .option-desc { line-height: 1.35; }
+body.wide-screen .node-title { font-size: 0.66rem; }
+/* Footer scale */
+body.wide-screen .site-footer { font-size: 0.95rem; padding: 1.3rem 2rem; }
+
+/* High OS scaling compensation: if CSS width shrinks but physical width (data attribute) indicates large display, relax wrapping */
+@media (max-width: 1500px) {
+  html[data-physical-width="1920"],
+  html[data-physical-width="2560"],
+  html[data-physical-width="2048"],
+  html[data-physical-width="2304"] {
+    /* Increase matrix column min sizes slightly to prevent excessive wrapping */
+    .r2r-matrix { gap: 0.65rem; }
+    .r2r-col-header { font-size: 0.9rem; }
+  .process-item { font-size: var(--box-text-size); }
+  }
+}
+
 
 /* ========================= PROCESS FLOW PAGE ========================= */
 .flow-page { padding: 0.8rem 0.9rem 1.5rem 0.9rem; background: var(--surface); border-radius: 18px; box-shadow: var(--shadow-sm); }
