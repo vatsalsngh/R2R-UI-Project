@@ -1,0 +1,52 @@
+{
+	"phases": [
+		"Maintenance",
+		"Data Collection",
+		"Entity Close & Submission",
+		"Consolidation",
+		"Reporting",
+		"Local & Tax Accounting",
+		"Support Audit"
+	],
+	"lanes": [
+		"Corporate Accounting",
+		"GDS Master Data Governance",
+		"GDS General Ledger A/C",
+		"C&E Reporting",
+		"External Reporting",
+		"Tax",
+		"Regional C&E",
+		"C&E Financial Systems"
+	],
+	"nodes": [
+		{ "id": "start", "type": "event", "label": "Start", "phase": "Maintenance", "lane": "Corporate Accounting" },
+		{ "id": "mdrq", "label": "Receive Master Data Request", "phase": "Maintenance", "lane": "GDS Master Data Governance", "icons": ["leading-practices"] },
+		{ "id": "validate", "label": "Validate Data & Policies", "phase": "Maintenance", "lane": "GDS Master Data Governance", "icons": ["leading-practices", "kpis"] },
+		{ "id": "updateSys", "label": "Update Reference Systems", "phase": "Maintenance", "lane": "C&E Financial Systems", "icons": ["activity-placement"] },
+		{ "id": "collectEntity", "label": "Collect Entity Submissions", "phase": "Data Collection", "lane": "Corporate Accounting", "icons": ["persona-models"] },
+		{ "id": "glLoad", "label": "Load / Post GL Entries", "phase": "Entity Close & Submission", "lane": "GDS General Ledger A/C", "icons": ["kpis", "activity-placement"] },
+		{ "id": "reviewEntries", "label": "Review Journal Entries", "phase": "Entity Close & Submission", "lane": "Corporate Accounting" },
+		{ "id": "consolPrep", "label": "Prepare Consolidation Package", "phase": "Consolidation", "lane": "Corporate Accounting", "icons": ["leading-practices", "persona-models"] },
+		{ "id": "intercoElim", "label": "Perform Interco Eliminations", "phase": "Consolidation", "lane": "Corporate Accounting", "icons": ["kpis"] },
+		{ "id": "generateReports", "label": "Generate Management Reports", "phase": "Reporting", "lane": "C&E Reporting", "icons": ["kpis", "leading-practices"] },
+		{ "id": "statReports", "label": "Prepare Statutory Reports", "phase": "Reporting", "lane": "External Reporting", "icons": ["kpis"] },
+		{ "id": "taxProvision", "label": "Calculate Tax Provision", "phase": "Local & Tax Accounting", "lane": "Tax", "icons": ["leading-practices"] },
+		{ "id": "supportAudit", "label": "Provide Audit Support", "phase": "Support Audit", "lane": "Corporate Accounting", "icons": ["persona-models", "activity-placement"] },
+		{ "id": "end", "type": "event", "label": "End", "phase": "Support Audit", "lane": "Corporate Accounting" }
+	],
+	"flows": [
+		["start", "mdrq"],
+		["mdrq", "validate"],
+		["validate", "updateSys"],
+		["updateSys", "collectEntity"],
+		["collectEntity", "glLoad"],
+		["glLoad", "reviewEntries"],
+		["reviewEntries", "consolPrep"],
+		["consolPrep", "intercoElim"],
+		["intercoElim", "generateReports"],
+		["generateReports", "statReports"],
+		["statReports", "taxProvision"],
+		["taxProvision", "supportAudit"],
+		["supportAudit", "end"]
+	]
+}

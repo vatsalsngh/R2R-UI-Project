@@ -750,18 +750,18 @@ body.wide-screen .site-footer { font-size: 0.95rem; padding: 1.3rem 2rem; }
 .diagram-wrapper .zoom-controls button:hover { background: linear-gradient(color-mix(in srgb, var(--surface) 80%, #000 20%), color-mix(in srgb, var(--surface) 80%, #000 20%)) padding-box, linear-gradient(135deg, var(--accent), var(--brand)) border-box; }
 .lane-bg { fill: color-mix(in srgb, var(--card-glass) 90%, #000 10%); }
 .lane-sep, .col-sep { stroke: color-mix(in srgb, var(--brand-contrast) 15%, transparent); stroke-width:1; shape-rendering:crispEdges; }
-.column-label { font-size:12px; font-weight:700; fill: var(--muted); letter-spacing:0.5px; }
-.lane-label-text { font-size:11px; font-weight:600; fill: var(--muted); }
-.node rect { fill: var(--card-glass); stroke: color-mix(in srgb, var(--brand) 55%, var(--accent) 45%); stroke-width:2; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)); }
+.column-label { font-size:17px; font-weight:700; fill: var(--muted); letter-spacing:0.5px; }
+.lane-label-text { font-size:15.5px; font-weight:600; fill: var(--muted); }
+.node rect { fill: linear-gradient(135deg, color-mix(in srgb, var(--brand) 15%, #1a2230), color-mix(in srgb, var(--accent) 45%, #243044)); stroke: color-mix(in srgb, var(--accent) 60%, var(--brand) 40%); stroke-width:2; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)); }
 .node.highlight rect { fill: linear-gradient(135deg, color-mix(in srgb, var(--brand) 60%, transparent), color-mix(in srgb, var(--accent) 50%, transparent)); }
-.node text { font-size:11px; font-weight:600; fill: var(--brand-contrast); pointer-events:none; }
+.node text { font-size:15.5px; font-weight:600; fill: var(--brand-contrast); pointer-events:none; }
 .node.event circle { fill: var(--card-glass); stroke: var(--accent); stroke-width:3; }
 .node.gateway polygon { fill: var(--card-glass); stroke: var(--brand); stroke-width:3; }
 .edge { fill:none; stroke: var(--accent); stroke-width:2; marker-end:url(#arrow); opacity:0.85; }
-.mini-icon-svg rect { fill: linear-gradient(135deg, var(--brand), var(--accent)); }
-.mini-icon-svg text { fill: var(--brand-contrast); font-size:8px; font-weight:700; }
+.mini-icon-svg rect { fill: linear-gradient(135deg, color-mix(in srgb, var(--accent) 55%, #2e3c52), color-mix(in srgb, var(--brand) 55%, #253142)); }
+.mini-icon-svg text { fill: var(--brand-contrast); font-size:11.5px; font-weight:700; }
 .mini-icon-svg { cursor:pointer; transition:filter .2s, transform .2s; }
-.mini-icon-svg:focus rect, .mini-icon-svg:hover rect { outline:2px solid var(--accent); filter:brightness(1.15); }
+.mini-icon-svg:focus rect, .mini-icon-svg:hover rect { filter:brightness(1.15); }
 .mini-icon-svg:focus { outline:none; }
 .mini-map-wrapper { position:absolute; top:6px; right:6px; width:180px; height:120px; background: linear-gradient(var(--card-glass), var(--card-glass)); border:1px solid color-mix(in srgb, var(--brand-contrast) 15%, transparent); border-radius:10px; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 #miniMapSvg { width:100%; height:100%; }
