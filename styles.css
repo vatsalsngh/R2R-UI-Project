@@ -753,20 +753,20 @@ body.wide-screen .site-footer { font-size: 0.95rem; padding: 1.3rem 2rem; }
 
 /* ========================= PROCESS FLOW PAGE ========================= */
 .flow-page { padding: 0.8rem 0.9rem 1.5rem 0.9rem; background: var(--surface); border-radius: 18px; box-shadow: var(--shadow-sm); }
-.diagram-wrapper { position: relative; overflow:hidden; background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 4%, transparent), color-mix(in srgb, var(--accent) 3%, transparent)); border:1px solid color-mix(in srgb, var(--brand-contrast) 12%, transparent); border-radius:16px; padding:0.75rem 0.75rem 1.1rem; box-shadow: var(--shadow-sm); min-height:600px; }
+.diagram-wrapper { position: relative; overflow:auto; background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 4%, transparent), color-mix(in srgb, var(--accent) 3%, transparent)); border:1px solid color-mix(in srgb, var(--brand-contrast) 12%, transparent); border-radius:16px; padding:0.75rem 0.75rem 1.1rem; box-shadow: var(--shadow-sm); min-height:600px; }
 .diagram-wrapper svg.flow-svg { width:100%; height:100%; font-family: system-ui, "Segoe UI", Roboto, Arial, sans-serif; color: var(--text); }
 .diagram-wrapper .zoom-controls { position:absolute; top:6px; left:6px; display:flex; gap:4px; z-index:10; }
 .diagram-wrapper .zoom-controls button { background: linear-gradient(var(--card-glass), var(--card-glass)) padding-box, linear-gradient(135deg, var(--brand), var(--accent)) border-box; border:1px solid transparent; color: var(--brand-contrast); font-weight:700; font-size:0.65rem; padding:0.25rem 0.45rem; border-radius:6px; cursor:pointer; box-shadow: var(--shadow-sm); }
 .diagram-wrapper .zoom-controls button:hover { background: linear-gradient(color-mix(in srgb, var(--surface) 80%, #000 20%), color-mix(in srgb, var(--surface) 80%, #000 20%)) padding-box, linear-gradient(135deg, var(--accent), var(--brand)) border-box; }
 .lane-bg { fill: color-mix(in srgb, var(--card-glass) 90%, #000 10%); }
 .lane-sep, .col-sep { stroke: color-mix(in srgb, var(--brand-contrast) 15%, transparent); stroke-width:1; shape-rendering:crispEdges; }
-.column-label { font-size:17px; font-weight:700; fill: var(--muted); letter-spacing:0.5px; }
-.lane-label-text { font-size:15.5px; font-weight:600; fill: var(--muted); }
+.column-label { font-size:20px; font-weight:700; fill: var(--muted); letter-spacing:0.6px; }
+.lane-label-text { font-size:20px; font-weight:700; letter-spacing:0.6px; fill: var(--muted); }
 .node rect { fill: linear-gradient(135deg, var(--flow-node-fill-start), var(--flow-node-fill-end)); stroke: var(--flow-node-border); stroke-width:2; /* further softened glow */
   filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5)) drop-shadow(0 0 3px color-mix(in srgb, var(--flow-edge) 40%, transparent)); transition: filter .28s ease, stroke-width .25s ease, transform .28s ease; }
 .node rect:hover { stroke-width:2.3; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.55)) drop-shadow(0 0 5px color-mix(in srgb, var(--flow-edge) 55%, transparent)) brightness(1.04); }
 .node.highlight rect { fill: linear-gradient(135deg, var(--flow-node-highlight-start), var(--flow-node-highlight-end)); stroke: color-mix(in srgb, var(--flow-node-border) 70%, #ffffff 30%); filter: drop-shadow(0 4px 12px rgba(0,0,0,0.55)) drop-shadow(0 0 6px color-mix(in srgb, var(--flow-edge) 60%, transparent)); }
-.node text { font-size:15.5px; font-weight:600; fill: var(--brand-contrast); pointer-events:none; }
+.node text { font-size:18px; font-weight:600; fill: var(--brand-contrast); pointer-events:none; }
 .node.event circle { fill: var(--card-glass); stroke: var(--accent); stroke-width:3; }
 .node.gateway polygon { fill: var(--card-glass); stroke: var(--brand); stroke-width:3; }
 .edge { fill:none; stroke: var(--flow-edge); color: var(--flow-edge); stroke-width:2.2; marker-end:url(#arrow); opacity:0.96; filter: drop-shadow(0 0 4px var(--flow-edge-glow)) drop-shadow(0 0 10px color-mix(in srgb, var(--flow-edge) 40%, transparent)); }
@@ -775,7 +775,7 @@ body.wide-screen .site-footer { font-size: 0.95rem; padding: 1.3rem 2rem; }
 .mini-icon-svg[data-type='kpis'] rect,
 .mini-icon-svg[data-type='persona-models'] rect,
 .mini-icon-svg[data-type='activity-placement'] rect { fill: linear-gradient(135deg, color-mix(in srgb, #0ea5e9 70%, #132736), color-mix(in srgb, #38bdf8 65%, #1a2f40)); }
-.mini-icon-svg text { fill: var(--brand-contrast); font-size:11.5px; font-weight:700; }
+.mini-icon-svg text { fill: var(--brand-contrast); font-size:14px; font-weight:700; }
 .mini-icon-svg { cursor:pointer; transition:filter .2s, transform .2s; }
 .mini-icon-svg:focus rect, .mini-icon-svg:hover rect { filter:brightness(1.15); }
 .mini-icon-svg:focus { outline:none; }
