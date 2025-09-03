@@ -770,12 +770,14 @@ body.wide-screen .site-footer { font-size: 0.95rem; padding: 1.3rem 2rem; }
 .node.event circle { fill: var(--card-glass); stroke: var(--accent); stroke-width:3; }
 .node.gateway polygon { fill: var(--card-glass); stroke: var(--brand); stroke-width:3; }
 .edge { fill:none; stroke: var(--flow-edge); color: var(--flow-edge); stroke-width:2.2; marker-end:url(#arrow); opacity:0.96; filter: drop-shadow(0 0 4px var(--flow-edge-glow)) drop-shadow(0 0 10px color-mix(in srgb, var(--flow-edge) 40%, transparent)); }
-.mini-icon-svg rect { fill:#27313d; stroke: color-mix(in srgb, var(--flow-node-border) 55%, #ffffff 20%); stroke-width:0.8; filter: drop-shadow(var(--flow-icon-shadow)); }
-.mini-icon-svg[data-type='leading-practices'] rect,
-.mini-icon-svg[data-type='kpis'] rect,
-.mini-icon-svg[data-type='persona-models'] rect,
-.mini-icon-svg[data-type='activity-placement'] rect { fill: linear-gradient(135deg, color-mix(in srgb, #0ea5e9 70%, #132736), color-mix(in srgb, #38bdf8 65%, #1a2f40)); }
-.mini-icon-svg text { fill: var(--brand-contrast); font-size:14px; font-weight:700; }
+.mini-icon-svg rect { fill:#1f262e; stroke: color-mix(in srgb, var(--flow-node-border) 70%, #ffffff 25%); stroke-width:1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) drop-shadow(0 0 4px rgba(0,150,255,0.25)); }
+/* Vibrant per‑type gradients for readability */
+.mini-icon-svg[data-type='leading-practices'] rect { fill: linear-gradient(135deg,#5d3bff,#947dff 72%); }
+.mini-icon-svg[data-type='kpis'] rect { fill: linear-gradient(135deg,#0284c7,#3cc5ff 75%); }
+.mini-icon-svg[data-type='persona-models'] rect { fill: linear-gradient(135deg,#7c3aed,#d3b2ff 78%); }
+.mini-icon-svg[data-type='activity-placement'] rect { fill: linear-gradient(135deg,#059669,#41f6c8 80%); }
+.mini-icon-svg text { fill: #f5fbff; font-size:14px; font-weight:800; text-shadow:0 1px 2px rgba(0,0,0,0.55); letter-spacing:0.45px; }
+.mini-icon-svg:hover rect, .mini-icon-svg:focus-visible rect { filter:brightness(1.28) saturate(1.18); }
 .mini-icon-svg { cursor:pointer; transition:filter .2s, transform .2s; }
 .mini-icon-svg:focus rect, .mini-icon-svg:hover rect { filter:brightness(1.15); }
 .mini-icon-svg:focus { outline:none; }
