@@ -767,6 +767,10 @@ body.wide-screen .site-footer { font-size: 0.95rem; padding: 1.3rem 2rem; }
 .mini-icon-svg { cursor:pointer; transition:filter .2s, transform .2s; }
 .mini-icon-svg:focus rect, .mini-icon-svg:hover rect { filter:brightness(1.15); }
 .mini-icon-svg:focus { outline:none; }
+.mini-icon-svg { transform-box: fill-box; transform-origin: 50% 50%; }
+.mini-icon-svg:hover, .mini-icon-svg:focus-visible { filter:none; }
+.mini-icon-svg rect { transform-box: fill-box; transform-origin:50% 50%; transition: transform .25s ease, filter .25s ease, stroke .25s ease; }
+.mini-icon-svg:hover rect, .mini-icon-svg:focus-visible rect { transform:scale(1.08); filter:brightness(1.3); stroke:#ffffff; stroke-width:1; }
 .mini-map-wrapper { position:absolute; top:6px; right:6px; width:180px; height:120px; background: linear-gradient(var(--card-glass), var(--card-glass)); border:1px solid color-mix(in srgb, var(--brand-contrast) 15%, transparent); border-radius:10px; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 #miniMapSvg { width:100%; height:100%; }
 .mini-map-viewport { fill: none; stroke: var(--brand-contrast); stroke-width:8; stroke-opacity:0.6; }
