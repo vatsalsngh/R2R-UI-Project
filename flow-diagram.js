@@ -3,9 +3,9 @@
  */
 (function(){
   const CFG = Object.freeze({
-    // Further increased sizes for enhanced readability
-    node:{ width:200, height:110, paddingV:14, wrapChars:24, lineGap:16, maxLines:4 },
-    lane:{ baseHeight:160, left:130, top:50, right:2700 },
+    // Slightly larger again for improved readability (incremental)
+    node:{ width:260, height:142, paddingV:18, wrapChars:30, lineGap:20, maxLines:5 },
+  lane:{ baseHeight:190, left:130, top:50, right:3000 },
   zoom:{ min:1, max:1, step:0, storageKey:'r2rDiagramTransform' },
     edge:{ startGap:6, endGap:12, tolerance:10, busSpacing:14 },
     minimap:{ pad:80, defaultScale:0.06 }
@@ -84,15 +84,52 @@
         const laneName=lanes[i];
         const center = laneY[laneName] + laneHeights[i]/2;
         const tspans=[...el.querySelectorAll('tspan')];
-        // dynamic gap: a bit larger when more than 2 lines
-        const gap = tspans.length>2 ? 15 : 16;
-        const totalHeight = (tspans.length-1)*gap;
+        // Determine available horizontal space (label area is from 0 to CFG.lane.left)
+        const maxWidth = left - 10; // leave 10px padding from left edge
+        // Re-wrap if current label width exceeds available area
+        let bb = null;
+        try { bb = el.getBBox(); } catch(_){ bb=null; }
+        if(bb && bb.width > maxWidth){
+          // Build full label text from existing tspans
+          const full = tspans.map(t=>t.textContent.trim()).join(' ');
+          const words = full.split(/\s+/).filter(Boolean);
+          // Clear existing tspans and rebuild one word per line (compact words if very short)
+          el.innerHTML='';
+          const rebuilt=[];
+          for(let w of words){
+            // If last added word is very short and current word is short, merge for efficiency
+            if(rebuilt.length && rebuilt.at(-1).length<=3 && w.length<=4){
+              rebuilt[rebuilt.length-1] = rebuilt.at(-1)+" "+w;
+            } else {
+              rebuilt.push(w);
+            }
+          }
+          rebuilt.forEach(txt=>{
+            const ts=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+            ts.textContent=txt;
+            el.appendChild(ts);
+          });
+        }
+        const tspans2=[...el.querySelectorAll('tspan')];
+        const gap = tspans2.length>4 ? 16 : (tspans2.length>2 ? 18 : 19);
+        const totalHeight = (tspans2.length-1)*gap;
         const startY = center - totalHeight/2;
-        tspans.forEach((ts,j)=>{
+        tspans2.forEach((ts,j)=>{
           ts.removeAttribute('dy');
-          ts.setAttribute('x','115');
-          ts.setAttribute('y', String(startY + j*gap));
+            ts.setAttribute('x','115');
+            ts.setAttribute('y', String(startY + j*gap));
         });
+        // After positioning, ensure label isn't clipped at left edge (font size increases widened text)
+        try {
+          const bb2 = el.getBBox();
+          if(bb2.x < 4){
+            const shift = 4 - bb2.x + 2;
+            el.querySelectorAll('tspan').forEach(ts=>{
+              const currentX = Number(ts.getAttribute('x')) || 115;
+              ts.setAttribute('x', String(currentX + shift));
+            });
+          }
+        } catch(_) { /* ignore if not rendered yet */ }
       });
     }
 
@@ -127,8 +164,8 @@
           const spacing=6; // horizontal gap between icons
           const horizontalPad = 10; // left padding inside task box
           const bottomPad = 10; // gap from bottom edge of task box
-          const ICON_H = 24; // increased further
-          const widthFor=ic=> (ic==='kpis'||ic==='persona-models'||ic==='activity-placement'?42:40);
+          const ICON_H = 30; // enlarged again
+          const widthFor=ic=> (ic==='kpis'||ic==='persona-models'||ic==='activity-placement'?54:52);
           let iconX = cellX + horizontalPad;
           const iconY = nodeY + CFG.node.height - ICON_H - bottomPad;
           n.icons.forEach((ic,idx)=>{
