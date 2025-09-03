@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <nav class="site-nav">
-        <div class="brand">📊 Finance Suite</div>
+        <div class="brand"><span class="logo-mark" aria-hidden="true">FS</span><span class="sr-only">Finance Suite</span> Finance Suite</div>
         <ul>
             <li><a href="index.html" class="active">Home</a></li>
             <li><a href="#solutions">Solutions</a></li>
@@ -17,8 +20,8 @@
     </nav>
     <main class="solutions-section" role="main">
         <h1 class="section-title" style="margin-top:0;">Finance Suite</h1>
-        <p style="text-align:center;color:var(--muted);max-width:880px;margin:0.4rem auto 1.3rem;font-weight:500;">Transform finance operations with curated domain assets, process frameworks, governance accelerators and data‑driven insights.</p>
-        <p style="text-align:center;color:var(--muted);max-width:880px;margin:0 auto 2rem;font-weight:500;">Choose a capability area to begin exploring detailed flows, policies and enablers.</p>
+    <p class="intro-text">Transform finance operations with curated domain assets, process frameworks, governance accelerators and data‑driven insights.</p>
+    <p class="intro-text" style="margin:0 auto 2rem;">Choose a capability area to begin exploring detailed flows, policies and enablers.</p>
         <section id="solutions" style="padding:0;">
             <h2 class="visually-hidden">Solutions</h2>
             <div class="options-grid">
@@ -48,6 +51,6 @@
         <div>© 2025 Finance Suite.</div>
         <small>All rights reserved.</small>
     </footer>
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>

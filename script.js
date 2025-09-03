@@ -125,21 +125,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Wide-screen (targeting 1920x1080 desktop) layout class injection
-    const setWideScreenFlag = () => {
-        // Use physical width (CSS px * devicePixelRatio) so OS display scaling (125%, 150%) still qualifies.
-        const physicalWidth = Math.round(window.innerWidth * (window.devicePixelRatio || 1));
-        // Treat anything approximating >= 1920 physical pixels as wide-screen.
-        // Fallback: also allow very wide CSS width without high DPR.
-        if (physicalWidth >= 1880 || window.innerWidth >= 1600) {
-            document.body.classList.add('wide-screen');
-        } else {
-            document.body.classList.remove('wide-screen');
+        // Wide-screen layout class injection (debounced)
+        const setWideScreenFlag = () => {
+            const physicalWidth = Math.round(window.innerWidth * (window.devicePixelRatio || 1));
+            if (physicalWidth >= 1880 || window.innerWidth >= 1600) {
+                document.body.classList.add('wide-screen');
+            } else {
+                document.body.classList.remove('wide-screen');
+            }
+            document.documentElement.dataset.physicalWidth = String(physicalWidth);
+        };
+        setWideScreenFlag();
+        let resizeTO;
+        window.addEventListener('resize', ()=>{ clearTimeout(resizeTO); resizeTO=setTimeout(setWideScreenFlag,120); }, { passive: true });
+        window.addEventListener('orientationchange', setWideScreenFlag);
+
+        // Lazy load flow-diagram module only when diagram host approaches viewport
+        const diagramHost = document.getElementById('diagramHost');
+        if (diagramHost && !window.__FLOW_DIAGRAM_LAZY__) {
+            if ('IntersectionObserver' in window) {
+                const io = new IntersectionObserver((entries)=>{
+                    if(entries[0].isIntersecting){
+                        window.__FLOW_DIAGRAM_LAZY__ = true;
+                        const s=document.createElement('script');
+                        s.src='flow-diagram.js';
+                        s.defer=true;
+                        document.head.appendChild(s);
+                        io.disconnect();
+                    }
+                }, { rootMargin: '300px' });
+                io.observe(diagramHost);
+            } else {
+                // Fallback: load immediately
+                const s=document.createElement('script'); s.src='flow-diagram.js'; s.defer=true; document.head.appendChild(s);
+            }
         }
-        // Optional: expose for debugging
-        document.documentElement.dataset.physicalWidth = String(physicalWidth);
-    };
-    setWideScreenFlag();
-    window.addEventListener('resize', setWideScreenFlag, { passive: true });
-    window.addEventListener('orientationchange', setWideScreenFlag);
 });
