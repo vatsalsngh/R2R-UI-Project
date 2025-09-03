@@ -41,6 +41,36 @@
     if(line) lines.push(line); return lines.slice(0,maxLines);
   }
 
+  // Smart pixel-based wrapping: if a single-line label nearly touches box edges, wrap by measuring text width.
+  const measureCtx = document.createElement('canvas').getContext('2d');
+  // Node font styling (keep in sync with CSS .node text { font-size / font-weight })
+  const NODE_FONT = '600 18px "Plus Jakarta Sans", system-ui, "Segoe UI", Arial, sans-serif';
+  measureCtx.font = NODE_FONT;
+  function wrapLabelSmart(label, boxWidth, maxLines){
+    const safePadding = 40; // leave at least 20px per side visually
+    const safeWidth = boxWidth - safePadding;
+    const full = String(label).trim();
+    const fullWidth = measureCtx.measureText(full).width;
+    // If it comfortably fits, keep single line
+    if(fullWidth <= safeWidth) return [full];
+    const words = full.split(/\s+/);
+    const lines=[]; let current='';
+    for(const w of words){
+      const tentative = current ? current + ' ' + w : w;
+      const wWidth = measureCtx.measureText(tentative).width;
+      if(wWidth <= safeWidth || !current){
+        current = tentative;
+      } else {
+        lines.push(current);
+        current = w;
+        if(lines.length === maxLines) break; // safety
+      }
+      if(lines.length === maxLines) break;
+    }
+    if(current && lines.length < maxLines) lines.push(current);
+    return lines.slice(0,maxLines);
+  }
+
   function computeLaneHeights(phases, lanes, nodes){
     const { baseHeight } = CFG.lane; const { height, paddingV } = CFG.node;
     const cellMap={}; nodes.forEach(n=>{ const k=n.phase+'__'+n.lane; (cellMap[k]||(cellMap[k]=[])).push(n); });
@@ -155,7 +185,15 @@
         const size=48, cx=cellX+24, cy=nodeY+height/2; const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon'); const pts=[[cx,cy-size/2],[cx+size/2,cy],[cx,cy+size/2],[cx-size/2,cy]].map(p=>p.join(',')).join(' '); poly.setAttribute('points',pts); g.classList.add('gateway'); g.appendChild(poly); pos[n.id]={left:cx-size/2,right:cx+size/2,y:cy,type:'gateway',x:cx+size/2}; const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x', cx+size/2+8); t.setAttribute('y', cy+6); t.textContent=n.label; g.appendChild(t);
       } else {
         const rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); rect.setAttribute('x',cellX); rect.setAttribute('y',nodeY); rect.setAttribute('width',width); rect.setAttribute('height',height); rect.setAttribute('rx',6); rect.setAttribute('ry',6); g.appendChild(rect);
-        const lines=wrapWords(n.label,wrapChars,maxLines); const firstY = nodeY + height/2 - ((lines.length-1)*CFG.node.lineGap/2);
+        // Prefer pixel-based smart wrapping; fallback to char wrapper if needed
+        let lines = wrapLabelSmart(n.label, width, maxLines);
+        if(lines.length === 1){
+          // If still one line but extremely long (char length criterion) use legacy char wrapping for a softer break
+            if(n.label.length > wrapChars){
+              lines = wrapWords(n.label, Math.max(12, Math.round(wrapChars*0.8)), maxLines);
+            }
+        }
+        const firstY = nodeY + height/2 - ((lines.length-1)*CFG.node.lineGap/2);
         const text=document.createElementNS('http://www.w3.org/2000/svg','text'); text.setAttribute('text-anchor','middle');
         lines.forEach((ln,i)=>{ const tspan=document.createElementNS('http://www.w3.org/2000/svg','tspan'); tspan.setAttribute('x', cellX+width/2); tspan.setAttribute('y', firstY + i*CFG.node.lineGap+4); tspan.textContent=ln; text.appendChild(tspan); });
         g.appendChild(text); const title=document.createElementNS('http://www.w3.org/2000/svg','title'); title.textContent=n.label; g.appendChild(title);
