@@ -167,7 +167,17 @@
 
     // Edges
     const usedBusX=[]; function allocateBusX(desired){ let x=desired, i=0; while(usedBusX.some(b=>Math.abs(b-x)<CFG.edge.tolerance)){ i++; x=desired + i*CFG.edge.busSpacing; } usedBusX.push(x); return x; }
-    function segPath(sx,sy,tx,ty){ if(Math.abs(sy-ty)<4) return `M${sx},${sy} H${tx}`; const mid=allocateBusX((sx+tx)/2); return `M${sx},${sy} H${mid} V${ty} H${tx}`; }
+    function segPath(sx,sy,tx,ty){
+      // Straight line if nearly horizontal
+      if(Math.abs(sy-ty)<4) return `M${sx},${sy} H${tx}`;
+      const mid=allocateBusX((sx+tx)/2);
+      let r=18; const verticalDist=Math.abs(ty-sy); if(verticalDist < (r*2+8)) r=Math.max(6, (verticalDist-4)/2);
+      const dir = ty>sy ? 1 : -1;
+      // Path: horizontal -> curve -> vertical -> curve -> horizontal
+      // First corner ends at (mid, sy + dir*r)
+      // Second corner starts at (mid, ty - dir*r)
+      return `M${sx},${sy} H${mid-r} Q${mid},${sy} ${mid},${sy+dir*r} V${ty - dir*r} Q${mid},${ty} ${mid+r},${ty} H${tx}`;
+    }
     flows.forEach(([a,b])=>{ const A=pos[a], B=pos[b]; if(!A||!B) return; let sx=A.right+CFG.edge.startGap, sy=A.y, tx=B.left-CFG.edge.endGap, ty=B.y; if(tx<sx){ sx=A.right+CFG.edge.startGap; tx=B.right+CFG.edge.startGap; } const d=segPath(sx,sy,tx,ty); const p=document.createElementNS('http://www.w3.org/2000/svg','path'); p.setAttribute('class','edge'); p.setAttribute('d',d); edgesLayer.appendChild(p); });
 
   // Minimap removed

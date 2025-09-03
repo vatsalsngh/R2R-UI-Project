@@ -752,13 +752,17 @@ body.wide-screen .site-footer { font-size: 0.95rem; padding: 1.3rem 2rem; }
 .lane-sep, .col-sep { stroke: color-mix(in srgb, var(--brand-contrast) 15%, transparent); stroke-width:1; shape-rendering:crispEdges; }
 .column-label { font-size:17px; font-weight:700; fill: var(--muted); letter-spacing:0.5px; }
 .lane-label-text { font-size:15.5px; font-weight:600; fill: var(--muted); }
-.node rect { fill: linear-gradient(135deg, color-mix(in srgb, var(--brand) 15%, #1a2230), color-mix(in srgb, var(--accent) 45%, #243044)); stroke: color-mix(in srgb, var(--accent) 60%, var(--brand) 40%); stroke-width:2; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)); }
+.node rect { fill: linear-gradient(135deg, #3e3205, #cfae29); stroke:#ffd84d; stroke-width:2; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.55)); }
 .node.highlight rect { fill: linear-gradient(135deg, color-mix(in srgb, var(--brand) 60%, transparent), color-mix(in srgb, var(--accent) 50%, transparent)); }
 .node text { font-size:15.5px; font-weight:600; fill: var(--brand-contrast); pointer-events:none; }
 .node.event circle { fill: var(--card-glass); stroke: var(--accent); stroke-width:3; }
 .node.gateway polygon { fill: var(--card-glass); stroke: var(--brand); stroke-width:3; }
-.edge { fill:none; stroke: var(--accent); stroke-width:2; marker-end:url(#arrow); opacity:0.85; }
-.mini-icon-svg rect { fill: linear-gradient(135deg, color-mix(in srgb, var(--accent) 55%, #2e3c52), color-mix(in srgb, var(--brand) 55%, #253142)); }
+.edge { fill:none; stroke:#ff9b3d; color:#ff9b3d; stroke-width:2.2; marker-end:url(#arrow); opacity:0.95; }
+.mini-icon-svg rect { fill:#344048; }
+.mini-icon-svg[data-type='leading-practices'] rect { fill: linear-gradient(135deg,#7b3df5,#b47bff); }
+.mini-icon-svg[data-type='kpis'] rect { fill: linear-gradient(135deg,#ff7f3d,#ffb347); }
+.mini-icon-svg[data-type='persona-models'] rect { fill: linear-gradient(135deg,#1f8bff,#63b6ff); }
+.mini-icon-svg[data-type='activity-placement'] rect { fill: linear-gradient(135deg,#18b673,#5ae6a7); }
 .mini-icon-svg text { fill: var(--brand-contrast); font-size:11.5px; font-weight:700; }
 .mini-icon-svg { cursor:pointer; transition:filter .2s, transform .2s; }
 .mini-icon-svg:focus rect, .mini-icon-svg:hover rect { filter:brightness(1.15); }
