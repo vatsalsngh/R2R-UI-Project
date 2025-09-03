@@ -724,7 +724,10 @@ main { background: var(--surface); box-shadow: var(--shadow-sm); border-radius: 
 .process-item { background: color-mix(in srgb, var(--brand-contrast) 5%, var(--card-glass)); border: 1px solid color-mix(in srgb, var(--brand-contrast) 20%, transparent); color: var(--text); font-size: var(--box-text-size); font-weight: 600; padding: 0.62rem 0.5rem; border-radius: 8px; line-height: 1.22; letter-spacing: 0.32px; text-align: center; word-break: break-word; transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition); }
 .process-item:hover { background: var(--brand); color: var(--brand-contrast); transform: translateY(-2px); box-shadow: var(--shadow-sm); cursor: default; }
 .process-item.process-link { cursor: pointer; text-decoration: none; display:block; }
-.process-item.process-link:hover { background: linear-gradient(135deg, var(--brand), var(--accent)); color: var(--brand-contrast); }
+.process-item.process-link:hover { /* unify hover color with non-link items */
+  background: var(--brand);
+  color: var(--brand-contrast);
+}
 @media (max-width: 1300px) { .r2r-matrix { gap: 0.55rem; } .r2r-col-header { font-size: 0.97rem; height:68px; min-height:68px; } }
 @media (max-width: 900px) { .r2r-matrix { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } .r2r-col-header::after, .r2r-col-header::before { display: none; } .r2r-col-header { font-size: 0.92rem; height:66px; min-height:66px; } }
 @media (max-width: 620px) { .r2r-matrix { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); } .r2r-col-header { font-size: 0.88rem; height:64px; min-height:64px; } }
