@@ -3,9 +3,10 @@
  */
 (function(){
   const CFG = Object.freeze({
-    node:{ width:150, height:72, paddingV:8, wrapChars:18, lineGap:12, maxLines:4 },
-    lane:{ baseHeight:110, left:130, top:50, right:2510 },
-    zoom:{ min:0.4, max:2.5, step:0.15, storageKey:'r2rDiagramTransform' },
+    // Slightly larger again for improved readability (incremental)
+    node:{ width:260, height:142, paddingV:18, wrapChars:30, lineGap:20, maxLines:5 },
+  lane:{ baseHeight:190, left:130, top:50, right:3000 },
+  zoom:{ min:1, max:1, step:0, storageKey:'r2rDiagramTransform' },
     edge:{ startGap:6, endGap:12, tolerance:10, busSpacing:14 },
     minimap:{ pad:80, defaultScale:0.06 }
   });
@@ -19,7 +20,7 @@
   let zoom=1, panX=0, panY=0, miniScale=CFG.minimap.defaultScale, updateViewport=()=>{};
 
   // Restore transform
-  try{ const saved = JSON.parse(localStorage.getItem(CFG.zoom.storageKey)||'null'); if(saved){ zoom=+saved.zoom||1; panX=+saved.panX||0; panY=+saved.panY||0; } }catch{}
+  // Zoom persistence removed
 
   const fetchLayout = async () => {
     try {
@@ -38,6 +39,36 @@
     const words = String(label).split(/\s+/); const lines=[]; let line='';
     words.forEach(w=>{ if(!line) line=w; else if((line+' '+w).length<=maxChars) line+=' '+w; else { lines.push(line); line=w; } });
     if(line) lines.push(line); return lines.slice(0,maxLines);
+  }
+
+  // Smart pixel-based wrapping: if a single-line label nearly touches box edges, wrap by measuring text width.
+  const measureCtx = document.createElement('canvas').getContext('2d');
+  // Node font styling (keep in sync with CSS .node text { font-size / font-weight })
+  const NODE_FONT = '600 18px "Plus Jakarta Sans", system-ui, "Segoe UI", Arial, sans-serif';
+  measureCtx.font = NODE_FONT;
+  function wrapLabelSmart(label, boxWidth, maxLines){
+    const safePadding = 40; // leave at least 20px per side visually
+    const safeWidth = boxWidth - safePadding;
+    const full = String(label).trim();
+    const fullWidth = measureCtx.measureText(full).width;
+    // If it comfortably fits, keep single line
+    if(fullWidth <= safeWidth) return [full];
+    const words = full.split(/\s+/);
+    const lines=[]; let current='';
+    for(const w of words){
+      const tentative = current ? current + ' ' + w : w;
+      const wWidth = measureCtx.measureText(tentative).width;
+      if(wWidth <= safeWidth || !current){
+        current = tentative;
+      } else {
+        lines.push(current);
+        current = w;
+        if(lines.length === maxLines) break; // safety
+      }
+      if(lines.length === maxLines) break;
+    }
+    if(current && lines.length < maxLines) lines.push(current);
+    return lines.slice(0,maxLines);
   }
 
   function computeLaneHeights(phases, lanes, nodes){
@@ -65,8 +96,72 @@
     lanes.forEach((lane,i)=>{ const y=laneY[lane]; const ln=document.createElementNS('http://www.w3.org/2000/svg','line'); ln.setAttribute('class','lane-sep'); ln.setAttribute('x1',left); ln.setAttribute('x2',right); ln.setAttribute('y1',y); ln.setAttribute('y2',y); rootGroup.appendChild(ln); if(i===lanes.length-1){ const b=document.createElementNS('http://www.w3.org/2000/svg','line'); b.setAttribute('class','lane-sep'); b.setAttribute('x1',left); b.setAttribute('x2',right); b.setAttribute('y1', y+laneHeights[i]); b.setAttribute('y2', y+laneHeights[i]); rootGroup.appendChild(b);} });
     // Column separators
     for(let c=0;c<=phases.length;c++){ const x = left + c*colWidth; const l=document.createElementNS('http://www.w3.org/2000/svg','line'); l.setAttribute('class','col-sep'); l.setAttribute('x1',x); l.setAttribute('x2',x); l.setAttribute('y1',top); l.setAttribute('y2', laneY[lanes.at(-1)]+laneHeights.at(-1)); rootGroup.appendChild(l); }
-    // Align lane labels
-    const labels=[...svg.querySelectorAll('.lane-label-text')]; if(labels.length===lanes.length){ labels.forEach((el,i)=>{ const center=laneY[lanes[i]]+laneHeights[i]/2; const tsp=[...el.querySelectorAll('tspan')]; const g=12; const start=center - (tsp.length-1)*g/2; tsp.forEach((ts,j)=>{ ts.removeAttribute('dy'); ts.setAttribute('x','75'); ts.setAttribute('y', start + j*g); }); }); }
+    // Center column labels horizontally over their columns
+    const colLabels=[...svg.querySelectorAll('.column-label')];
+    if(colLabels.length===phases.length){
+      colLabels.forEach((el,i)=>{
+        el.setAttribute('x', (left + colWidth*(i+0.5)).toFixed(1));
+        el.setAttribute('text-anchor','middle');
+        // keep existing y if present; ensure it's slightly above lane top
+        const y = Number(el.getAttribute('y')) || (top-10);
+        el.setAttribute('y', y);
+      });
+    }
+    // Right-aligned lane labels: vertically center each multi-line label within its lane
+    const laneLabels=[...svg.querySelectorAll('.lane-label-text')];
+    if(laneLabels.length===lanes.length){
+      laneLabels.forEach((el,i)=>{
+        const laneName=lanes[i];
+        const center = laneY[laneName] + laneHeights[i]/2;
+        const tspans=[...el.querySelectorAll('tspan')];
+        // Determine available horizontal space (label area is from 0 to CFG.lane.left)
+        const maxWidth = left - 10; // leave 10px padding from left edge
+        // Re-wrap if current label width exceeds available area
+        let bb = null;
+        try { bb = el.getBBox(); } catch(_){ bb=null; }
+        if(bb && bb.width > maxWidth){
+          // Build full label text from existing tspans
+          const full = tspans.map(t=>t.textContent.trim()).join(' ');
+          const words = full.split(/\s+/).filter(Boolean);
+          // Clear existing tspans and rebuild one word per line (compact words if very short)
+          el.innerHTML='';
+          const rebuilt=[];
+          for(let w of words){
+            // If last added word is very short and current word is short, merge for efficiency
+            if(rebuilt.length && rebuilt.at(-1).length<=3 && w.length<=4){
+              rebuilt[rebuilt.length-1] = rebuilt.at(-1)+" "+w;
+            } else {
+              rebuilt.push(w);
+            }
+          }
+          rebuilt.forEach(txt=>{
+            const ts=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+            ts.textContent=txt;
+            el.appendChild(ts);
+          });
+        }
+        const tspans2=[...el.querySelectorAll('tspan')];
+        const gap = tspans2.length>4 ? 16 : (tspans2.length>2 ? 18 : 19);
+        const totalHeight = (tspans2.length-1)*gap;
+        const startY = center - totalHeight/2;
+        tspans2.forEach((ts,j)=>{
+          ts.removeAttribute('dy');
+            ts.setAttribute('x','115');
+            ts.setAttribute('y', String(startY + j*gap));
+        });
+        // After positioning, ensure label isn't clipped at left edge (font size increases widened text)
+        try {
+          const bb2 = el.getBBox();
+          if(bb2.x < 4){
+            const shift = 4 - bb2.x + 2;
+            el.querySelectorAll('tspan').forEach(ts=>{
+              const currentX = Number(ts.getAttribute('x')) || 115;
+              ts.setAttribute('x', String(currentX + shift));
+            });
+          }
+        } catch(_) { /* ignore if not rendered yet */ }
+      });
+    }
 
     nodesLayer.innerHTML=''; edgesLayer.innerHTML='';
     const pos={};
@@ -84,49 +179,60 @@
       g.classList.add('node'); if(n.highlight) g.classList.add('highlight');
       g.addEventListener('keydown',e=>{ if(e.key==='Enter') g.click(); if(e.key===' '){ e.preventDefault(); g.click(); }});
       if(n.type==='event'){
-        const cx=cellX+20, cy=nodeY+height/2, r=18; const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r); g.classList.add('event'); g.appendChild(c); pos[n.id]={left:cx-r,right:cx+r,y:cy,type:'event',x:cx+r};
-        const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x', cx+25); t.setAttribute('y', cy+4); t.textContent=n.label; g.appendChild(t);
+        const cx=cellX+24, cy=nodeY+height/2, r=24; const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r); g.classList.add('event'); g.appendChild(c); pos[n.id]={left:cx-r,right:cx+r,y:cy,type:'event',x:cx+r};
+        const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x', cx+32); t.setAttribute('y', cy+6); t.textContent=n.label; g.appendChild(t);
       } else if(n.type==='gateway'){
-        const size=38, cx=cellX+20, cy=nodeY+height/2; const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon'); const pts=[[cx,cy-size/2],[cx+size/2,cy],[cx,cy+size/2],[cx-size/2,cy]].map(p=>p.join(',')).join(' '); poly.setAttribute('points',pts); g.classList.add('gateway'); g.appendChild(poly); pos[n.id]={left:cx-size/2,right:cx+size/2,y:cy,type:'gateway',x:cx+size/2}; const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x', cx+size/2+5); t.setAttribute('y', cy+4); t.textContent=n.label; g.appendChild(t);
+        const size=48, cx=cellX+24, cy=nodeY+height/2; const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon'); const pts=[[cx,cy-size/2],[cx+size/2,cy],[cx,cy+size/2],[cx-size/2,cy]].map(p=>p.join(',')).join(' '); poly.setAttribute('points',pts); g.classList.add('gateway'); g.appendChild(poly); pos[n.id]={left:cx-size/2,right:cx+size/2,y:cy,type:'gateway',x:cx+size/2}; const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x', cx+size/2+8); t.setAttribute('y', cy+6); t.textContent=n.label; g.appendChild(t);
       } else {
         const rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); rect.setAttribute('x',cellX); rect.setAttribute('y',nodeY); rect.setAttribute('width',width); rect.setAttribute('height',height); rect.setAttribute('rx',6); rect.setAttribute('ry',6); g.appendChild(rect);
-        const lines=wrapWords(n.label,wrapChars,maxLines); const firstY = nodeY + height/2 - ((lines.length-1)*CFG.node.lineGap/2);
+        // Prefer pixel-based smart wrapping; fallback to char wrapper if needed
+        let lines = wrapLabelSmart(n.label, width, maxLines);
+        if(lines.length === 1){
+          // If still one line but extremely long (char length criterion) use legacy char wrapping for a softer break
+            if(n.label.length > wrapChars){
+              lines = wrapWords(n.label, Math.max(12, Math.round(wrapChars*0.8)), maxLines);
+            }
+        }
+        const firstY = nodeY + height/2 - ((lines.length-1)*CFG.node.lineGap/2);
         const text=document.createElementNS('http://www.w3.org/2000/svg','text'); text.setAttribute('text-anchor','middle');
         lines.forEach((ln,i)=>{ const tspan=document.createElementNS('http://www.w3.org/2000/svg','tspan'); tspan.setAttribute('x', cellX+width/2); tspan.setAttribute('y', firstY + i*CFG.node.lineGap+4); tspan.textContent=ln; text.appendChild(tspan); });
         g.appendChild(text); const title=document.createElementNS('http://www.w3.org/2000/svg','title'); title.textContent=n.label; g.appendChild(title);
-        // Icons row (data links) – centered & individually interactive
+        // Icons row (data links) – bottom-left aligned & individually interactive (further scaled up)
         if(n.icons){
-          const spacing=4;
-            const widthFor=ic=> (ic==='kpis'||ic==='persona-models'||ic==='activity-placement'?30:28);
-            const iconWidths = n.icons.map(widthFor);
-            const total = iconWidths.reduce((a,b)=>a+b,0) + spacing*(iconWidths.length-1);
-            let iconX = cellX + (width - total)/2;
-            n.icons.forEach((ic,idx)=>{
-              const w = iconWidths[idx];
-              const ig=document.createElementNS('http://www.w3.org/2000/svg','g');
-              ig.classList.add('mini-icon-svg');
-              ig.dataset.type=ic;
-              ig.setAttribute('transform',`translate(${iconX},${nodeY+height-18})`);
-              ig.setAttribute('tabindex','0');
-              ig.setAttribute('role','button');
-              const labelMap={ 'leading-practices':'Leading Practices', 'kpis':'KPIs', 'persona-models':'Persona Models', 'activity-placement':'Activity Placement' };
-              ig.setAttribute('aria-label', `${labelMap[ic]||'Data'} for ${n.label}`);
-              const rr=document.createElementNS('http://www.w3.org/2000/svg','rect');
-              rr.setAttribute('width', w);
-              rr.setAttribute('height',16);
-              rr.setAttribute('rx',9); rr.setAttribute('ry',9); rr.setAttribute('aria-hidden','true');
-              ig.appendChild(rr);
-              const tx=document.createElementNS('http://www.w3.org/2000/svg','text');
-              tx.setAttribute('x', w/2);
-              tx.setAttribute('y',8);
-              tx.setAttribute('text-anchor','middle');
-              tx.textContent= ic==='leading-practices'?'LP': ic==='kpis'?'KPI': ic==='persona-models'?'PM': ic==='activity-placement'?'AP':'';
-              ig.appendChild(tx);
-              ig.addEventListener('click',e=>{ e.stopPropagation(); handleIconClick(ic, n.label); announce('Opened '+ic+' table for '+n.label); });
-              ig.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ig.click(); }});
-              g.appendChild(ig);
-              iconX += w + spacing;
-            });
+          const spacing=6; // horizontal gap between icons
+          const horizontalPad = 10; // left padding inside task box
+          const bottomPad = 10; // gap from bottom edge of task box
+          const ICON_H = 30; // enlarged again
+          const widthFor=ic=> (ic==='kpis'||ic==='persona-models'||ic==='activity-placement'?54:52);
+          let iconX = cellX + horizontalPad;
+          const iconY = nodeY + CFG.node.height - ICON_H - bottomPad;
+          n.icons.forEach((ic,idx)=>{
+            const w = widthFor(ic);
+            const ig=document.createElementNS('http://www.w3.org/2000/svg','g');
+            ig.classList.add('mini-icon-svg');
+            ig.dataset.type=ic;
+            ig.setAttribute('transform',`translate(${iconX},${iconY})`);
+            ig.setAttribute('tabindex','0');
+            ig.setAttribute('role','button');
+            const labelMap={ 'leading-practices':'Leading Practices', 'kpis':'KPIs', 'persona-models':'Persona Models', 'activity-placement':'Activity Placement' };
+            ig.setAttribute('aria-label', `${labelMap[ic]||'Data'} for ${n.label}`);
+            const rr=document.createElementNS('http://www.w3.org/2000/svg','rect');
+            rr.setAttribute('width', w);
+            rr.setAttribute('height',ICON_H);
+            rr.setAttribute('rx',10); rr.setAttribute('ry',10); rr.setAttribute('aria-hidden','true');
+            ig.appendChild(rr);
+            const tx=document.createElementNS('http://www.w3.org/2000/svg','text');
+            tx.setAttribute('x', w/2);
+            tx.setAttribute('y', Math.round(ICON_H/2));
+            tx.setAttribute('dominant-baseline','middle');
+            tx.setAttribute('text-anchor','middle');
+            tx.textContent= ic==='leading-practices'?'LP': ic==='kpis'?'KPI': ic==='persona-models'?'PM': ic==='activity-placement'?'AP':'';
+            ig.appendChild(tx);
+            ig.addEventListener('click',e=>{ e.stopPropagation(); handleIconClick(ic, n.label); announce('Opened '+ic+' table for '+n.label); });
+            ig.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ig.click(); }});
+            g.appendChild(ig);
+            iconX += w + spacing;
+          });
         }
         pos[n.id]={left:cellX,right:cellX+width,y:nodeY+height/2,type:'task',x:cellX+width};
       }
@@ -136,42 +242,41 @@
 
     // Edges
     const usedBusX=[]; function allocateBusX(desired){ let x=desired, i=0; while(usedBusX.some(b=>Math.abs(b-x)<CFG.edge.tolerance)){ i++; x=desired + i*CFG.edge.busSpacing; } usedBusX.push(x); return x; }
-    function segPath(sx,sy,tx,ty){ if(Math.abs(sy-ty)<4) return `M${sx},${sy} H${tx}`; const mid=allocateBusX((sx+tx)/2); return `M${sx},${sy} H${mid} V${ty} H${tx}`; }
+    function segPath(sx,sy,tx,ty){
+      // Straight line if nearly horizontal
+      if(Math.abs(sy-ty)<4) return `M${sx},${sy} H${tx}`;
+      const mid=allocateBusX((sx+tx)/2);
+      let r=18; const verticalDist=Math.abs(ty-sy); if(verticalDist < (r*2+8)) r=Math.max(6, (verticalDist-4)/2);
+      const dir = ty>sy ? 1 : -1;
+      // Path: horizontal -> curve -> vertical -> curve -> horizontal
+      // First corner ends at (mid, sy + dir*r)
+      // Second corner starts at (mid, ty - dir*r)
+      return `M${sx},${sy} H${mid-r} Q${mid},${sy} ${mid},${sy+dir*r} V${ty - dir*r} Q${mid},${ty} ${mid+r},${ty} H${tx}`;
+    }
     flows.forEach(([a,b])=>{ const A=pos[a], B=pos[b]; if(!A||!B) return; let sx=A.right+CFG.edge.startGap, sy=A.y, tx=B.left-CFG.edge.endGap, ty=B.y; if(tx<sx){ sx=A.right+CFG.edge.startGap; tx=B.right+CFG.edge.startGap; } const d=segPath(sx,sy,tx,ty); const p=document.createElementNS('http://www.w3.org/2000/svg','path'); p.setAttribute('class','edge'); p.setAttribute('d',d); edgesLayer.appendChild(p); });
 
-    // Minimap
-    miniMapSvg.innerHTML=''; const mmGroup=document.createElementNS('http://www.w3.org/2000/svg','g');
-    const vb2 = svg.getAttribute('viewBox').split(/\s+/).map(Number); const fullW=vb2[2], fullH=vb2[3];
-    if(miniMapSvg.clientWidth){ const mmW=miniMapSvg.clientWidth, mmH=miniMapSvg.clientHeight||120; miniScale = Math.min(mmW/(fullW+CFG.minimap.pad), mmH/(fullH+CFG.minimap.pad)); }
-    mmGroup.setAttribute('transform',`scale(${miniScale})`);
-    edgesLayer.querySelectorAll('path').forEach(p=>{ const c=p.cloneNode(false); c.setAttribute('stroke-width','4'); mmGroup.appendChild(c); });
-    nodesLayer.querySelectorAll('rect,circle,polygon').forEach(el=>{ const c=el.cloneNode(false); c.setAttribute('fill','none'); c.setAttribute('stroke','var(--accent)'); mmGroup.appendChild(c); });
-    miniMapSvg.appendChild(mmGroup);
-    const viewport=document.createElementNS('http://www.w3.org/2000/svg','rect'); viewport.setAttribute('class','mini-map-viewport'); miniMapSvg.appendChild(viewport);
-    updateViewport=function(){ const w= host.clientWidth/zoom * miniScale; const h= host.clientHeight/zoom * miniScale; viewport.setAttribute('x',(-panX)*miniScale/zoom); viewport.setAttribute('y',(-panY)*miniScale/zoom); viewport.setAttribute('width', w); viewport.setAttribute('height', h); };
-    updateViewport();
+  // Minimap removed
+  updateViewport=function(){};
     window.R2R_LAYOUT={phases,lanes,nodes,flows,pos};
   }
 
-  function applyTransform(){ svg.style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`; svg.style.transformOrigin='0 0'; updateViewport(); try{ localStorage.setItem(CFG.zoom.storageKey, JSON.stringify({zoom,panX,panY})); }catch{}
-  }
+  function applyTransform(){ svg.style.transform=`translate(${panX}px,${panY}px) scale(1)`; svg.style.transformOrigin='0 0'; updateViewport(); }
 
   // Zoom controls
-  function setZoom(target,cx,cy){ const prev=zoom; zoom=Math.min(CFG.zoom.max, Math.max(CFG.zoom.min, target)); if(zoom!==prev){ if(cx!=null&&cy!=null){ panX = cx - (cx-panX)*(zoom/prev); panY = cy - (cy-panY)*(zoom/prev); } applyTransform(); announce(`Zoom ${Math.round(zoom*100)} percent`); } }
+  function setZoom(){ /* zoom disabled */ }
 
-  host.addEventListener('wheel',e=>{ if(e.ctrlKey){ e.preventDefault(); setZoom(zoom + (-e.deltaY*0.001), e.clientX - svg.getBoundingClientRect().left, e.clientY - svg.getBoundingClientRect().top); } }, { passive:false });
+  host.addEventListener('wheel',e=>{ if(e.ctrlKey){ e.preventDefault(); } }, { passive:false });
   // Drag pan (middle or shift+left)
   let dragging=false,lastX=0,lastY=0; host.addEventListener('mousedown',e=>{ if(e.button===1||e.shiftKey){ dragging=true; lastX=e.clientX; lastY=e.clientY; e.preventDefault(); } });
   window.addEventListener('mousemove',e=>{ if(dragging){ panX+=e.clientX-lastX; panY+=e.clientY-lastY; lastX=e.clientX; lastY=e.clientY; applyTransform(); } }); window.addEventListener('mouseup',()=>dragging=false);
   // Keyboard shortcuts
-  window.addEventListener('keydown',e=>{ if(e.target.closest('input,textarea,select,button,[contenteditable]')) return; if(e.key==='+'|| (e.key==='='&&e.ctrlKey)) setZoom(zoom+CFG.zoom.step); else if(e.key==='-'|| (e.key==='_'&&e.ctrlKey)) setZoom(zoom-CFG.zoom.step); else if(e.key==='0'&&e.ctrlKey){ zoom=1; panX=0; panY=0; applyTransform(); } else if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){ const d=60/zoom; if(e.key==='ArrowLeft') panX+=d; if(e.key==='ArrowRight') panX-=d; if(e.key==='ArrowUp') panY+=d; if(e.key==='ArrowDown') panY-=d; applyTransform(); }});
+  window.addEventListener('keydown',e=>{ if(e.target.closest('input,textarea,select,button,[contenteditable]')) return; if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){ const d=60; if(e.key==='ArrowLeft') panX+=d; if(e.key==='ArrowRight') panX-=d; if(e.key==='ArrowUp') panY+=d; if(e.key==='ArrowDown') panY-=d; applyTransform(); }});
 
   // Zoom buttons
-  host.querySelectorAll('.zoom-controls button').forEach(btn=> btn.addEventListener('click',()=>{ const act=btn.dataset.zoom; if(act==='in') setZoom(zoom+CFG.zoom.step); else if(act==='out') setZoom(zoom-CFG.zoom.step); else { zoom=1; panX=0; panY=0; applyTransform(); announce('Reset zoom'); } }));
+  // Zoom controls removed from DOM
 
   // Minimap interactions
-  let miniDrag=false; function miniMove(evt){ const r=miniMapSvg.getBoundingClientRect(); const mx=evt.clientX-r.left, my=evt.clientY-r.top; const targetX=mx/miniScale, targetY=my/miniScale; const viewW=host.clientWidth/zoom, viewH=host.clientHeight/zoom; panX=-(targetX - viewW/2); panY=-(targetY - viewH/2); applyTransform(); }
-  miniMapSvg.addEventListener('mousedown',e=>{ miniDrag=true; miniMove(e); }); window.addEventListener('mousemove',e=>{ if(miniDrag) miniMove(e); }); window.addEventListener('mouseup',()=>miniDrag=false);
+  // Minimap interactions removed
 
   // Icon menu (context / dblclick)
   function showIconMenu(nodeEl,node){ if(!node.icons?.length) return; iconMenu.innerHTML=''; iconMenu.setAttribute('role','menu'); node.icons.forEach(ic=>{ const b=document.createElement('button'); b.type='button'; b.setAttribute('role','menuitem'); b.textContent = ic==='leading-practices'?'Leading Practices': ic==='kpis'?'KPIs': ic==='persona-models'?'Persona Models':'Activity Placement'; b.addEventListener('click',()=>{ handleIconClick(ic,node.label); hideMenu(); }); iconMenu.appendChild(b); }); const r=nodeEl.getBoundingClientRect(); iconMenu.style.left=(r.right+4+window.scrollX)+'px'; iconMenu.style.top=(r.top+window.scrollY)+'px'; iconMenu.style.display='flex'; iconMenu.firstChild?.focus(); }
