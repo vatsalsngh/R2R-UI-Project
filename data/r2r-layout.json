@@ -21,7 +21,7 @@
 	"nodes": [
 		{ "id": "start", "type": "event", "label": "Start", "phase": "Maintenance", "lane": "Corporate Accounting" },
 		{ "id": "mdrq", "label": "Receive Master Data Request", "phase": "Maintenance", "lane": "GDS Master Data Governance", "icons": ["leading-practices"] },
-		{ "id": "validate", "label": "Validate Data & Policies", "phase": "Maintenance", "lane": "GDS Master Data Governance", "icons": ["leading-practices", "kpis"] },
+		{ "id": "validate", "label": "Validate Data & Policies", "phase": "Maintenance", "lane": "GDS Master Data Governance", "icons": ["leading-practices", "kpis", "persona-models", "activity-placement"] },
 		{ "id": "updateSys", "label": "Update Reference Systems", "phase": "Maintenance", "lane": "C&E Financial Systems", "icons": ["activity-placement"] },
 		{ "id": "collectEntity", "label": "Collect Entity Submissions", "phase": "Data Collection", "lane": "Corporate Accounting", "icons": ["persona-models"] },
 		{ "id": "glLoad", "label": "Load / Post GL Entries", "phase": "Entity Close & Submission", "lane": "GDS General Ledger A/C", "icons": ["kpis", "activity-placement"] },
