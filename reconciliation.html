@@ -15,14 +15,11 @@
             <li><a href="index.html#contact">Contact</a></li>
         </ul>
     </nav>
-    <header class="hero-header">
-        <div class="hero-content">
-            <h1>Reconciliation</h1>
-            <div class="flow">Finance &rarr; Record to Report &rarr; Reconciliation</div>
-        </div>
-    </header>
-    <main>
-        <section class="solutions-section">
+    <main class="solutions-section" role="main">
+        <nav aria-label="Breadcrumb" class="breadcrumb"><a href="index.html">Home</a><a href="record-to-report.html">Record to Report</a><span>Reconciliation</span></nav>
+        <h1 class="section-title" style="margin-top:0;">Reconciliation</h1>
+        
+        <section>
             <div class="options-grid compact">
                 <button class="option-card animated-card icon-btn" data-type="leading-practices" title="Leading Practices"><span class="option-icon">�</span><div class="option-title">Leading Practices</div></button>
                 <button class="option-card animated-card icon-btn" data-type="kpis" title="KPIs"><span class="option-icon">�</span><div class="option-title">KPIs</div></button>
@@ -31,9 +28,7 @@
             </div>
             <div id="table-container"></div>
         </section>
-        <div class="nav-controls">
-            <button onclick="window.history.back()">Go Back</button>
-        </div>
+    <div class="nav-controls"><button onclick="window.history.back()">Go Back</button></div>
     </main>
     <script src="script.js"></script>
 </body>

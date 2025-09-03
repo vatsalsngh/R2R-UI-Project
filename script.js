@@ -35,6 +35,14 @@ function renderTable(container, heading, data, filterValue) {
     container.innerHTML = html;
 }
 
+// Output escape to avoid XSS via CSV content
+function esc(str) {
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Cache for CSV datasets keyed by file path
+const CSV_CACHE = new Map();
+
 function handleIconClick(type, pageName) {
     const fileMap = {
         'leading-practices': 'data/leading-practices.csv',
@@ -51,13 +59,27 @@ function handleIconClick(type, pageName) {
     const file = fileMap[type];
     const heading = headingMap[type];
     if (!file) return;
-    fetch(file)
-        .then(resp => resp.text())
-        .then(text => {
-            const data = parseCSV(text);
-            const container = document.getElementById('table-container');
-            renderTable(container, heading, data, pageName);
-        });
+    const container = document.getElementById('table-container');
+    container.innerHTML = `<p style="color:var(--muted);font-size:0.9em;">Loading ${heading}…</p>`;
+    (async () => {
+        try {
+            let dataObj;
+            if (CSV_CACHE.has(file)) {
+                dataObj = CSV_CACHE.get(file);
+            } else {
+                const resp = await fetch(file);
+                if(!resp.ok) throw new Error(`Failed to load ${file}`);
+                const text = await resp.text();
+                dataObj = parseCSV(text);
+                CSV_CACHE.set(file, dataObj);
+            }
+            // Escape cells on render
+            const safe = { headers: dataObj.headers.map(esc), rows: dataObj.rows.map(r => r.map(esc)) };
+            renderTable(container, heading, safe, pageName);
+        } catch(err) {
+            container.innerHTML = `<div style="color:#f87171;font-weight:600;">Error loading data: ${esc(err.message)}</div>`;
+        }
+    })();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -86,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { threshold: 0.15 });
     document.querySelectorAll('.option-card').forEach(card => observer.observe(card));
 
-    const iconBtns = document.querySelectorAll('.icon-btn');
+    const iconBtns = document.querySelectorAll('.icon-btn, .mini-icon, .mini-icon-svg');
     if (iconBtns.length > 0) {
         // Determine current page name from common heading locations, fallback to document title
         const headingEl =
@@ -97,7 +119,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const pageName = (headingEl?.textContent || document.title || '').trim();
         iconBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                handleIconClick(btn.getAttribute('data-type'), pageName);
+                const t = btn.getAttribute('data-type');
+                if (t) handleIconClick(t, pageName);
             });
         });
     }
