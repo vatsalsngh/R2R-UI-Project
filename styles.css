@@ -36,6 +36,16 @@ html, body {
   /* Enhanced option card title sizing (scales slightly with viewport) */
   --option-title-min: 0.98rem;
   --option-title-max: 1.18rem;
+
+  /* Flow diagram theming (aligned with site brand; replaces ad‑hoc gold/orange) */
+  --flow-node-fill-start: color-mix(in srgb, var(--brand) 42%, #182231);
+  --flow-node-fill-end: color-mix(in srgb, var(--accent) 60%, #1a1f32);
+  --flow-node-border: color-mix(in srgb, var(--brand) 35%, var(--accent) 65%);
+  --flow-node-highlight-start: color-mix(in srgb, var(--brand) 68%, var(--accent) 28%);
+  --flow-node-highlight-end: color-mix(in srgb, var(--accent) 72%, var(--brand) 20%);
+  --flow-edge: color-mix(in srgb, var(--brand) 62%, var(--accent) 38%);
+  --flow-edge-glow: color-mix(in srgb, var(--accent) 55%, var(--brand) 45%);
+  --flow-icon-shadow: 0 2px 6px rgba(0,0,0,0.45);
 }
 
 body {
@@ -752,17 +762,19 @@ body.wide-screen .site-footer { font-size: 0.95rem; padding: 1.3rem 2rem; }
 .lane-sep, .col-sep { stroke: color-mix(in srgb, var(--brand-contrast) 15%, transparent); stroke-width:1; shape-rendering:crispEdges; }
 .column-label { font-size:17px; font-weight:700; fill: var(--muted); letter-spacing:0.5px; }
 .lane-label-text { font-size:15.5px; font-weight:600; fill: var(--muted); }
-.node rect { fill: linear-gradient(135deg, #3e3205, #cfae29); stroke:#ffd84d; stroke-width:2; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.55)); }
-.node.highlight rect { fill: linear-gradient(135deg, color-mix(in srgb, var(--brand) 60%, transparent), color-mix(in srgb, var(--accent) 50%, transparent)); }
+.node rect { fill: linear-gradient(135deg, var(--flow-node-fill-start), var(--flow-node-fill-end)); stroke: var(--flow-node-border); stroke-width:2; /* further softened glow */
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5)) drop-shadow(0 0 3px color-mix(in srgb, var(--flow-edge) 40%, transparent)); transition: filter .28s ease, stroke-width .25s ease, transform .28s ease; }
+.node rect:hover { stroke-width:2.3; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.55)) drop-shadow(0 0 5px color-mix(in srgb, var(--flow-edge) 55%, transparent)) brightness(1.04); }
+.node.highlight rect { fill: linear-gradient(135deg, var(--flow-node-highlight-start), var(--flow-node-highlight-end)); stroke: color-mix(in srgb, var(--flow-node-border) 70%, #ffffff 30%); filter: drop-shadow(0 4px 12px rgba(0,0,0,0.55)) drop-shadow(0 0 6px color-mix(in srgb, var(--flow-edge) 60%, transparent)); }
 .node text { font-size:15.5px; font-weight:600; fill: var(--brand-contrast); pointer-events:none; }
 .node.event circle { fill: var(--card-glass); stroke: var(--accent); stroke-width:3; }
 .node.gateway polygon { fill: var(--card-glass); stroke: var(--brand); stroke-width:3; }
-.edge { fill:none; stroke:#ff9b3d; color:#ff9b3d; stroke-width:2.2; marker-end:url(#arrow); opacity:0.95; }
-.mini-icon-svg rect { fill:#344048; }
-.mini-icon-svg[data-type='leading-practices'] rect { fill: linear-gradient(135deg,#7b3df5,#b47bff); }
-.mini-icon-svg[data-type='kpis'] rect { fill: linear-gradient(135deg,#ff7f3d,#ffb347); }
-.mini-icon-svg[data-type='persona-models'] rect { fill: linear-gradient(135deg,#1f8bff,#63b6ff); }
-.mini-icon-svg[data-type='activity-placement'] rect { fill: linear-gradient(135deg,#18b673,#5ae6a7); }
+.edge { fill:none; stroke: var(--flow-edge); color: var(--flow-edge); stroke-width:2.2; marker-end:url(#arrow); opacity:0.96; filter: drop-shadow(0 0 4px var(--flow-edge-glow)) drop-shadow(0 0 10px color-mix(in srgb, var(--flow-edge) 40%, transparent)); }
+.mini-icon-svg rect { fill:#27313d; stroke: color-mix(in srgb, var(--flow-node-border) 55%, #ffffff 20%); stroke-width:0.8; filter: drop-shadow(var(--flow-icon-shadow)); }
+.mini-icon-svg[data-type='leading-practices'] rect,
+.mini-icon-svg[data-type='kpis'] rect,
+.mini-icon-svg[data-type='persona-models'] rect,
+.mini-icon-svg[data-type='activity-placement'] rect { fill: linear-gradient(135deg, color-mix(in srgb, #0ea5e9 70%, #132736), color-mix(in srgb, #38bdf8 65%, #1a2f40)); }
 .mini-icon-svg text { fill: var(--brand-contrast); font-size:11.5px; font-weight:700; }
 .mini-icon-svg { cursor:pointer; transition:filter .2s, transform .2s; }
 .mini-icon-svg:focus rect, .mini-icon-svg:hover rect { filter:brightness(1.15); }

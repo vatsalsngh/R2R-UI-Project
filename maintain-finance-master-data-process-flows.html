@@ -26,8 +26,9 @@
       <div class="icon-menu" id="iconMenu"></div>
       <svg class="flow-svg" id="mainSvg" viewBox="0 0 2600 1000" preserveAspectRatio="xMinYMin meet" role="img" aria-label="Maintain Finance Master Data Process Flow">
         <defs>
-          <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M0 0 L10 5 L0 10 Z" fill="#ff9b3d" />
+          <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <!-- Arrow fill tuned to align with --flow-edge token (cannot use CSS var inside marker easily across browsers) -->
+            <path d="M0 0 L10 5 L0 10 Z" fill="#5b7bff" stroke="#5b7bff" stroke-width="1" />
           </marker>
         </defs>
         <g></g>
