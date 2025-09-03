@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>FMD Governance & Policy Framework</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <nav class="site-nav" role="navigation" aria-label="Primary">
+  <div class="brand">� Finance Suite</div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="record-to-report.html">Record to Report</a></li>
+      <li><a href="maintain-finance-master-data.html" class="active">Maintain FMD</a></li>
+    </ul>
+  </nav>
+  <main role="main" class="solutions-section">
+    <nav aria-label="Breadcrumb" class="breadcrumb"><a href="index.html">Home</a><a href="record-to-report.html">Record to Report</a><a href="maintain-finance-master-data.html">Maintain FMD</a><a href="maintain-fmd-delivery-enablers.html">Delivery Enablers</a><span>Governance & Policy</span></nav>
+    <h1 class="section-title" style="margin-top:0;">Governance & Policy framework</h1>
+    <p style="text-align:center;color:var(--muted);max-width:900px;margin:0 auto 2rem;">Structured layers defining global standards, local adaptation, execution guidance, and approval orchestration.</p>
+    <div class="options-grid compact">
+      <a class="option-card" href="fmd-policy-templates.html"><span class="option-icon">📁</span><span class="option-title" style="font-size:0.9em;">Policy Templates / Architecture Standards</span><span class="option-desc" style="font-size:0.7em;">Reusable base artifacts</span></a>
+      <a class="option-card" href="#" data-gp="local"><span class="option-icon">🗺️</span><span class="option-title" style="font-size:0.9em;">Localization Packs</span><span class="option-desc" style="font-size:0.7em;">Regional tailoring</span></a>
+      <a class="option-card" href="#" data-gp="sop"><span class="option-icon">📜</span><span class="option-title" style="font-size:0.9em;">SOPs & Work Instructions</span><span class="option-desc" style="font-size:0.7em;">Execution detail</span></a>
+      <a class="option-card" href="#" data-gp="approval"><span class="option-icon">🔁</span><span class="option-title" style="font-size:0.9em;">Approval Flows / RACIs</span><span class="option-desc" style="font-size:0.7em;">Decision rights</span></a>
+    </div>
+    <div id="gp-dynamic" style="margin-top:2.25rem;max-width:1050px;margin-inline:auto;"></div>
+    <div class="nav-controls"><button onclick="history.back()">Go Back</button></div>
+  </main>
+  <footer class="site-footer" id="site-footer"><div>© 2025 Finance Suite.</div><small>All rights reserved.</small></footer>
+  <script src="script.js" defer></script>
+  <script>
+  const gpMap={
+    local:'<h3>Localization Packs</h3><p>Guidance for adapting global templates to statutory, tax, and language nuances. Structure: Scope matrix, deviation log, localization decision register. (Placeholder)</p>',
+    sop:'<h3>SOPs & Work Instructions</h3><p>Hierarchy: Global SOP -> Regional Addendum -> Work Instruction (system). Versioning & control model. (Placeholder)</p>',
+    approval:'<h3>Approval Flows / RACIs</h3><p>Matrix of roles vs key master data events (create, amend, retire). Embedded SLA targets & escalation path. (Placeholder)</p>'
+  };
+  const dyn=document.getElementById('gp-dynamic');
+  document.querySelectorAll('[data-gp]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const k=a.dataset.gp;dyn.innerHTML=`<section class=card style="padding:1.2rem 1.4rem;">${gpMap[k]||'Coming soon.'}</section>`;window.scrollTo({top:0,behavior:'smooth'});}));
+  </script>
+</body>
+</html>

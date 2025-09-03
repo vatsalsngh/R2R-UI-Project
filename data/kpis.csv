@@ -1,0 +1,87 @@
+Category,Metric,Value,Target
+Reconciliation,Timeliness %,96,97
+Reconciliation,Aging >30d,8,5
+Reconciliation,Variance Rate %,2,1
+Reconciliation,On-time Rate %,94,98
+Reconciliation,SLA Met %,92,95
+Reconciliation,Items Cleared,120,130
+Financial Close,Days to Close,5,4
+Financial Close,Tasks Completed,98,100
+Financial Close,Bottlenecks,3,0
+Financial Close,Adjustments Count,12,8
+Financial Close,On-time Milestones %,93,97
+Financial Close,Close Accuracy %,98,99
+Reporting,Completeness %,99,100
+Reporting,Accuracy %,97,99
+Reporting,Timeliness %,95,98
+Reporting,Cycle Time (hrs),6,4
+Reporting,Reviews Completed,28,30
+Reporting,Dashboards Updated,12,12
+Intercompany,Discrepancies,2,0
+Intercompany,Mismatches,4,0
+Intercompany,Settlements,10,12
+Intercompany,Open Items,7,3
+Intercompany,Recharges Posted,32,35
+Intercompany,Invoices Cleared,25,28
+Fixed Assets,Audit Score %,90,95
+Fixed Assets,Capitalizations,18,20
+Fixed Assets,Retirements,4,5
+Fixed Assets,Transfers Processed,7,10
+Fixed Assets,Depreciation Runs,3,3
+Fixed Assets,Reconciled Assets %,92,96
+Accounts Reconciliation,Exceptions,3,1
+Accounts Reconciliation,Accounts Balanced %,88,94
+Accounts Reconciliation,High-risk Accounts,5,2
+Accounts Reconciliation,Outstanding Items,14,8
+Accounts Reconciliation,Auto-reconciled %,62,70
+Accounts Reconciliation,Manual Reconciliations,38,25
+Master Data & Governance,Data Quality Score %,92,98
+Master Data & Governance,Duplicate Records %,1.2,0.5
+General Accounting and Reporting,Auto-Journal Rate %,68,80
+General Accounting and Reporting,Manual Adjustments,14,8
+Intercompany Accounting,Match Rate %,88,95
+Intercompany Accounting,Settlement Timeliness %,90,98
+Fixed Assets Accounting,Tag Coverage %,76,95
+Fixed Assets Accounting,Capex Accuracy %,94,98
+Tax & Transfer Pricing,Rate Variance %,1.8,0.5
+Tax & Transfer Pricing,Timely Filings %,96,100
+Month End Close,On-time Tasks %,93,98
+Month End Close,Days to Close,5,4
+Balance Sheet Account Reconciliation,On-time Recons %,91,97
+Balance Sheet Account Reconciliation,Open Recon Items,18,8
+Consolidation and Reporting,Consolidation Runtime (min),22,15
+Consolidation and Reporting,Intercompany Elimination Errors,3,0
+Compliance,Control Exceptions,7,0
+Compliance,Policy Attestations Completed %,85,100
+Master Data & Governance,Open Data Issues,28,10
+Master Data & Governance,Master Change SLA Met %,89,98
+Master Data & Governance,Golden Records %,93,99
+Master Data & Governance,Data Steward Actions Closed,42,50
+Master Data & Governance,Duplicate Rate per 1k,3,1
+General Accounting and Reporting,Reversals Processed,22,10
+General Accounting and Reporting,Journal STP %,72,85
+General Accounting and Reporting,JE Approval SLA %,91,98
+General Accounting and Reporting,Unposted Suspense Items,5,0
+Intercompany Accounting,Confirmations Complete %,86,100
+Intercompany Accounting,Netting On-time %,92,100
+Intercompany Accounting,Dispute Age >15d,4,0
+Intercompany Accounting,Rate Alignment %,95,100
+Fixed Assets Accounting,Assets Tagged %,78,95
+Fixed Assets Accounting,Impairment Reviews Done,11,12
+Fixed Assets Accounting,Backlog Items,6,0
+Fixed Assets Accounting,Capitalization Timeliness %,90,98
+Tax & Transfer Pricing,Timely Returns Filed,19,20
+Tax & Transfer Pricing,IC Price Variance %,1.2,0.5
+Tax & Transfer Pricing,Documentation Status %,88,100
+Month End Close,Tasks Overdue,6,0
+Month End Close,Checklist Completion %,92,100
+Month End Close,Reopen Count,3,0
+Balance Sheet Account Reconciliation,Auto-match Rate %,68,80
+Balance Sheet Account Reconciliation,Exceptions Cleared,24,30
+Balance Sheet Account Reconciliation,Reviewer SLA %,89,98
+Consolidation and Reporting,Elimination Accuracy %,96,100
+Consolidation and Reporting,Manual Adjustments,7,0
+Consolidation and Reporting,Submission On-time %,94,100
+Compliance,Control Failures,5,0
+Compliance,Issues Closed,18,25
+Compliance,SOX Controls in Scope,45,45

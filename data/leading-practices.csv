@@ -1,0 +1,103 @@
+Category,Observation,Status
+Journal Entry,High volume around quarter-end,Review
+Journal Entry,Recurring adjustment pattern,Investigate
+Journal Entry,Top 5 accounts impacted,Review
+Journal Entry,Segregation of duties exceptions,Remediate
+Journal Entry,Backdated entries detected,Investigate
+Journal Entry,Large entries require approval,Action Needed
+Reconciliation,Long tail of open items,Investigate
+Reconciliation,Multiple owners per account,Clarify
+Reconciliation,Ageing trend worsening,Review
+Reconciliation,Auto-recon opportunities,Analyze
+Reconciliation,Policy deviations observed,Remediate
+Reconciliation,Documentation gaps,Fix
+Reporting,Multiple versions submitted,Review
+Reporting,Late submissions concentrated in BU-3,Investigate
+Reporting,Manual KPI compilation,Automate
+Reporting,Formula inconsistencies found,Fix
+Reporting,Unmapped cost centers,Map
+Reporting,Missing commentary fields,Add
+Intercompany,Netting schedule slippages,Investigate
+Intercompany,FX rate misalignments,Fix
+Intercompany,Counterparty timing differences,Analyze
+Intercompany,Unbilled recharges,Bill
+Intercompany,Workflow approvals pending,Clear
+Intercompany,Aging >60d trend,Reduce
+Fixed Assets,Unreconciled sub-ledger items,Investigate
+Fixed Assets,Useful life assumptions outdated,Review
+Fixed Assets,Capex spike in Q2,Analyze
+Fixed Assets,Asset tagging incomplete,Complete
+Fixed Assets,Impairment indicators flagged,Assess
+Fixed Assets,Depreciation method mix inconsistent,Standardize
+Accounts Reconciliation,High exception rate in AP,Remediate
+Accounts Reconciliation,Duplicate accounts found,Merge
+Accounts Reconciliation,Reconciliation frequency too low,Increase
+Accounts Reconciliation,Owner coverage gaps,Assign
+Accounts Reconciliation,Template variance across teams,Standardize
+Accounts Reconciliation,Missing supporting evidence,Enforce
+Master Data & Governance,Single source of truth enforced,Adopt
+Master Data & Governance,Data stewardship roles defined,Implement
+General Accounting and Reporting,Automate recurring journals,Adopt
+General Accounting and Reporting,Close checklist standardization,Standardize
+Intercompany Accounting,Intercompany netting calendar alignment,Adopt
+Intercompany Accounting,Auto-matching with tolerances,Implement
+Fixed Assets Accounting,Capitalization policy thresholds defined,Adopt
+Fixed Assets Accounting,Barcode-based tagging rollout,Implement
+Tax & Transfer Pricing,Centralized rate repository,Adopt
+Tax & Transfer Pricing,Intercompany pricing guardrails,Implement
+Month End Close,Daily pre-close tasks,Adopt
+Month End Close,Milestone tracker with ownership,Implement
+Balance Sheet Account Reconciliation,Risk-based frequency,Adopt
+Balance Sheet Account Reconciliation,Automated substantiation,Implement
+Consolidation and Reporting,One-click consolidation runs,Adopt
+Consolidation and Reporting,Validation rules library,Implement
+Compliance,Policy attestation workflow,Adopt
+Compliance,Real-time control dashboards,Implement
+Master Data & Governance,Golden record process established,Adopt
+Master Data & Governance,Automated duplicate detection,Implement
+Master Data & Governance,Reference data versioning,Implement
+Master Data & Governance,Data ownership RACI published,Adopt
+Master Data & Governance,Proactive data quality scorecards,Implement
+Master Data & Governance,Master data change SLAs defined,Adopt
+Master Data & Governance,Embedded validations at source,Implement
+Master Data & Governance,Self-service data requests,Adopt
+General Accounting and Reporting,Straight-through processing for journals,Implement
+General Accounting and Reporting,Standard journal templates,Standardize
+General Accounting and Reporting,Posting cut-off controls,Adopt
+General Accounting and Reporting,Automated accrual engine,Implement
+General Accounting and Reporting,Auto-reverse policies enforced,Adopt
+General Accounting and Reporting,Real-time trial balance checks,Implement
+Intercompany Accounting,Global counterparty matrix,Standardize
+Intercompany Accounting,Automated confirmation workflow,Implement
+Intercompany Accounting,Netting and settlement calendar,Adopt
+Intercompany Accounting,Standard dispute handling,Standardize
+Intercompany Accounting,Central rate loader integration,Implement
+Fixed Assets Accounting,Asset lifecycle governance,Standardize
+Fixed Assets Accounting,Capex request approval gates,Implement
+Fixed Assets Accounting,Periodic impairment triggers,Adopt
+Fixed Assets Accounting,Physical verification cadence,Standardize
+Fixed Assets Accounting,Automated depreciation validation,Implement
+Fixed Assets Accounting,Asset tagging compliance audit,Review
+Tax & Transfer Pricing,Documented pricing policies,Adopt
+Tax & Transfer Pricing,Threshold-based variance alerts,Implement
+Tax & Transfer Pricing,Central content repository,Adopt
+Tax & Transfer Pricing,Automated WHT calculations,Implement
+Month End Close,Rolling pre-close checklist,Adopt
+Month End Close,Daily flash reporting,Implement
+Month End Close,Ownership mapped to each milestone,Standardize
+Month End Close,Close room collaboration,Implement
+Month End Close,Auto reminders and escalations,Implement
+Balance Sheet Account Reconciliation,Risk scoring for accounts,Implement
+Balance Sheet Account Reconciliation,Auto-match with tolerance bands,Implement
+Balance Sheet Account Reconciliation,Unreconciled items workflow,Adopt
+Balance Sheet Account Reconciliation,Standard substantiation repository,Standardize
+Balance Sheet Account Reconciliation,Exception-based review,Adopt
+Consolidation and Reporting,Automated intercompany eliminations,Implement
+Consolidation and Reporting,Multi-GAAP mapping library,Adopt
+Consolidation and Reporting,Pre- and post-elimination checks,Implement
+Consolidation and Reporting,Disclosure checklist automation,Implement
+Consolidation and Reporting,Report certification workflow,Adopt
+Compliance,Key control library with owners,Standardize
+Compliance,Continuous control monitoring,Implement
+Compliance,Issue lifecycle tracking,Adopt
+Compliance,Quarterly control testing cadence,Standardize

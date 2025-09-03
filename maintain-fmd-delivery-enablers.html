@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Maintain FMD – Delivery Enablers</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <nav class="site-nav" role="navigation" aria-label="Primary">
+  <div class="brand">� Finance Suite</div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="record-to-report.html">Record to Report</a></li>
+      <li><a href="maintain-finance-master-data.html" class="active">Maintain FMD</a></li>
+    </ul>
+  </nav>
+  <main role="main" class="solutions-section">
+    <nav aria-label="Breadcrumb" class="breadcrumb"><a href="index.html">Home</a><a href="record-to-report.html">Record to Report</a><a href="maintain-finance-master-data.html">Maintain FMD</a><span>Delivery Enablers</span></nav>
+    <h1 class="section-title" style="margin-top:0;">Delivery Enablers</h1>
+    <p style="text-align:center;color:var(--muted);max-width:880px;margin:0 auto 2rem;">Key governance & acceleration components supporting Finance Master Data operations.</p>
+    <div class="options-grid compact">
+      <a class="option-card" href="fmd-governance-policy.html"><span class="option-icon">🛡️</span><span class="option-title" style="font-size:0.9em;">Governance & Policy framework</span><span class="option-desc" style="font-size:0.7em;">Structure & policy layers</span></a>
+      <a class="option-card" href="#" data-enabler="controls"><span class="option-icon">✅</span><span class="option-title" style="font-size:0.9em;">Controls & Compliance</span><span class="option-desc" style="font-size:0.7em;">Assurance mechanisms</span></a>
+      <a class="option-card" href="#" data-enabler="data-quality"><span class="option-icon">📐</span><span class="option-title" style="font-size:0.9em;">Data Quality & Stewardship</span><span class="option-desc" style="font-size:0.7em;">Ownership & metrics</span></a>
+      <a class="option-card" href="#" data-enabler="service-model"><span class="option-icon">🧩</span><span class="option-title" style="font-size:0.9em;">Service & Operating Model</span><span class="option-desc" style="font-size:0.7em;">Roles & hand-offs</span></a>
+      <a class="option-card" href="#" data-enabler="risk"><span class="option-icon">⚠️</span><span class="option-title" style="font-size:0.9em;">Risk Management</span><span class="option-desc" style="font-size:0.7em;">Identification & response</span></a>
+      <a class="option-card" href="#" data-enabler="continuous-improvement"><span class="option-icon">♻️</span><span class="option-title" style="font-size:0.9em;">Continuous Improvement</span><span class="option-desc" style="font-size:0.7em;">Feedback & evolution</span></a>
+    </div>
+    <div id="enabler-dynamic" style="margin-top:2.5rem;max-width:1050px;margin-inline:auto;"></div>
+    <div class="nav-controls"><button onclick="history.back()">Go Back</button></div>
+  </main>
+  <footer class="site-footer" id="site-footer"><div>© 2025 Finance Suite.</div><small>All rights reserved.</small></footer>
+  <script src="script.js" defer></script>
+  <script>
+  const map={
+    controls:'<h3>Controls & Compliance</h3><p>Outline of key preventative and detective controls for chart of accounts, intercompany, entity hierarchy and reference data maintenance. (Placeholder)</p>',
+    'data-quality':'<h3>Data Quality & Stewardship</h3><p>Model for ownership (RACI), data quality dimensions, and escalation workflow. (Placeholder)</p>',
+    'service-model':'<h3>Service & Operating Model</h3><p>Global / regional / local role segmentation, intake workflow, SLA catalog. (Placeholder)</p>',
+    risk:'<h3>Risk Management</h3><p>Top inherent risks, key controls mapping, monitoring cadence. (Placeholder)</p>',
+    'continuous-improvement':'<h3>Continuous Improvement</h3><p>Backlog triage, automation identification funnel, KPI feedback loop. (Placeholder)</p>'
+  };
+  const dyn=document.getElementById('enabler-dynamic');
+  document.querySelectorAll('[data-enabler]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const k=a.dataset.enabler;dyn.innerHTML = `<section class="card" style="padding:1.25rem 1.5rem;">${map[k]||'Coming soon.'}</section>`;window.scrollTo({top:0,behavior:'smooth'});}));
+  </script>
+</body>
+</html>

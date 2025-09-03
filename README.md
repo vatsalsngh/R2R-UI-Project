@@ -1,27 +1,21 @@
-# R2R-UI-Project
+# Sample Website
 
-A minimal UI project starting point. This repository currently includes basic project hygiene files and can be expanded into your preferred frontend stack.
+This is a simple, modern, and responsive sample website built with HTML, CSS, and JavaScript.
 
-## Quick start
+## Features
+- Responsive homepage
+- About page
+- Contact form (demo only)
+- Simple navigation bar
 
-1. Decide your stack (e.g., React + Vite, Next.js, or plain HTML/CSS/JS).
-2. Initialize the project scaffolding (I can do this for you on request).
-3. Commit and push changes.
+## How to Use
+1. Open `index.html` in your browser to view the homepage.
+2. Navigate to About and Contact pages using the navigation bar.
 
-## Project structure
+## Customization
+- Replace placeholder content with your own.
+- Update styles in `styles.css` as needed.
 
-```
-.
-├─ README.md           # Project overview
-├─ .gitignore          # Common ignores
-└─ .editorconfig       # Editor consistency
-```
+---
 
-## Contributing
-
-- Use LF line endings and UTF-8 encoding (enforced via `.editorconfig`).
-- Open an issue or PR for significant changes.
-
-## License
-
-License to be decided. Add a LICENSE file (MIT, Apache-2.0, etc.) when ready.
+This project is for demonstration purposes only.
