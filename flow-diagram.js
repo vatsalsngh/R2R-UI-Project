@@ -183,7 +183,7 @@
         const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x', cx+32); t.setAttribute('y', cy+6); t.textContent=n.label; g.appendChild(t);
       } else if(n.type==='gateway'){
         const size=48, cx=cellX+24, cy=nodeY+height/2; const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon'); const pts=[[cx,cy-size/2],[cx+size/2,cy],[cx,cy+size/2],[cx-size/2,cy]].map(p=>p.join(',')).join(' '); poly.setAttribute('points',pts); g.classList.add('gateway'); g.appendChild(poly); pos[n.id]={left:cx-size/2,right:cx+size/2,y:cy,type:'gateway',x:cx+size/2}; const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x', cx+size/2+8); t.setAttribute('y', cy+6); t.textContent=n.label; g.appendChild(t);
-      } else {
+  } else {
         const rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); rect.setAttribute('x',cellX); rect.setAttribute('y',nodeY); rect.setAttribute('width',width); rect.setAttribute('height',height); rect.setAttribute('rx',6); rect.setAttribute('ry',6); g.appendChild(rect);
         // Prefer pixel-based smart wrapping; fallback to char wrapper if needed
         let lines = wrapLabelSmart(n.label, width, maxLines);
@@ -197,6 +197,38 @@
         const text=document.createElementNS('http://www.w3.org/2000/svg','text'); text.setAttribute('text-anchor','middle');
         lines.forEach((ln,i)=>{ const tspan=document.createElementNS('http://www.w3.org/2000/svg','tspan'); tspan.setAttribute('x', cellX+width/2); tspan.setAttribute('y', firstY + i*CFG.node.lineGap+4); tspan.textContent=ln; text.appendChild(tspan); });
         g.appendChild(text); const title=document.createElementNS('http://www.w3.org/2000/svg','title'); title.textContent=n.label; g.appendChild(title);
+        // Notes icon (top-right)
+        (function(){
+          const ICON_W = 26, ICON_H = 22, PAD = 8;
+          const ig = document.createElementNS('http://www.w3.org/2000/svg','g');
+          ig.classList.add('note-icon-svg');
+          ig.setAttribute('transform', `translate(${cellX + width - ICON_W - PAD}, ${nodeY + PAD})`);
+          ig.setAttribute('tabindex','0');
+          ig.setAttribute('role','button');
+          ig.setAttribute('aria-label', `Notes for ${n.label}`);
+          const rr = document.createElementNS('http://www.w3.org/2000/svg','rect');
+          rr.setAttribute('width', String(ICON_W)); rr.setAttribute('height', String(ICON_H)); rr.setAttribute('rx','6'); rr.setAttribute('ry','6'); rr.setAttribute('aria-hidden','true');
+          ig.appendChild(rr);
+          const tx = document.createElementNS('http://www.w3.org/2000/svg','text');
+          tx.setAttribute('x', String(ICON_W/2)); tx.setAttribute('y', String(Math.round(ICON_H/2)+1)); tx.setAttribute('dominant-baseline','middle'); tx.setAttribute('text-anchor','middle'); tx.textContent='📝';
+          ig.appendChild(tx);
+          // Badge dot if note exists (from shared notes cache)
+          try {
+            const notes = window.__R2R_API__?.getCurrentNotes?.() || {};
+            if (notes[n.id] && String(notes[n.id]).trim()) {
+              const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+              dot.setAttribute('class','note-icon-badge');
+              dot.setAttribute('cx', String(ICON_W - 2));
+              dot.setAttribute('cy', '2');
+              dot.setAttribute('r', '3');
+              ig.appendChild(dot);
+            }
+          } catch(_) {}
+          ig.addEventListener('click', (e)=>{ e.stopPropagation(); openNoteModal(n.id, n.label); });
+          ig.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ig.dispatchEvent(new Event('click', {bubbles:true})); }});
+          g.appendChild(ig);
+        })();
+
         // Icons row (data links) – bottom-left aligned & individually interactive (further scaled up)
         if(n.icons){
           const spacing=6; // horizontal gap between icons
@@ -284,5 +316,68 @@
   document.addEventListener('click',e=>{ if(!iconMenu.contains(e.target)) hideMenu(); }); window.addEventListener('keydown',e=>{ if(e.key==='Escape') hideMenu(); });
 
   // Fetch + render
-  fetchLayout().then(layout=>{ render(layout); applyTransform(); layout.nodes.forEach(n=>{ const el=document.getElementById(n.id); if(el){ el.addEventListener('contextmenu',e=>{ e.preventDefault(); showIconMenu(el,n); }); el.addEventListener('dblclick',()=>showIconMenu(el,n)); }}); announce('Diagram loaded'); }).catch(()=>{});
+  // Notes modal setup (created once per page)
+  function ensureNoteModal(){
+    if(document.getElementById('noteModalBackdrop')) return;
+    const backdrop = document.createElement('div');
+    backdrop.id = 'noteModalBackdrop';
+    backdrop.className = 'note-modal-backdrop';
+    backdrop.innerHTML = `
+      <div class="note-modal" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+        <header>
+          <h3 id="noteModalTitle">Notes</h3>
+          <div class="note-actions">
+            <button type="button" class="btn secondary" id="noteCancelBtn">Close</button>
+            <button type="button" class="btn" id="noteSaveBtn">Save</button>
+          </div>
+        </header>
+        <textarea id="noteTextarea" placeholder="Type your notes here..."></textarea>
+        <div class="status" id="noteStatus" aria-live="polite"></div>
+      </div>`;
+    document.body.appendChild(backdrop);
+    backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) hideNoteModal(); });
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && backdrop.style.display==='flex') hideNoteModal(); });
+    document.getElementById('noteCancelBtn').addEventListener('click', hideNoteModal);
+    document.getElementById('noteSaveBtn').addEventListener('click', saveNoteFromModal);
+  }
+
+  let CURRENT_NOTE_ID = null;
+  function openNoteModal(nodeId, nodeLabel){
+    ensureNoteModal();
+    CURRENT_NOTE_ID = nodeId;
+    const backdrop = document.getElementById('noteModalBackdrop');
+    const title = document.getElementById('noteModalTitle');
+    const textarea = document.getElementById('noteTextarea');
+    const status = document.getElementById('noteStatus');
+    title.textContent = `Notes – ${nodeLabel}`;
+    const wsId = window.__R2R_API__?.getWorkspaceId?.();
+    if(!wsId){ textarea.value=''; status.textContent='Select a workspace first (top bar).'; }
+    else {
+      try {
+        const notes = window.__R2R_API__?.getCurrentNotes?.() || {};
+        textarea.value = notes[nodeId] || '';
+        status.textContent = textarea.value.trim() ? 'Loaded saved note.' : '';
+      } catch(_) { textarea.value=''; status.textContent=''; }
+    }
+    backdrop.style.display = 'flex';
+    setTimeout(()=> textarea.focus(), 0);
+  }
+  function hideNoteModal(){ const backdrop = document.getElementById('noteModalBackdrop'); if(backdrop) backdrop.style.display='none'; CURRENT_NOTE_ID=null; }
+  function saveNoteFromModal(){
+    const textarea = document.getElementById('noteTextarea');
+    const status = document.getElementById('noteStatus');
+    if(!CURRENT_NOTE_ID) return;
+    const wsId = window.__R2R_API__?.getWorkspaceId?.();
+    if(!wsId){ status.textContent = 'Select a workspace first (top bar).'; return; }
+    const val = textarea.value || '';
+    window.__R2R_API__?.setNote?.(CURRENT_NOTE_ID, val).then(()=>{
+      status.textContent = 'Saved.';
+      // Update local cache and badges
+      if(window.__R2R_API__?.reloadNotesAndBadges){ window.__R2R_API__.reloadNotesAndBadges(); }
+    }).catch(()=>{
+      status.textContent = 'Save failed. Is the API running?';
+    });
+  }
+
+  fetchLayout().then(layout=>{ render(layout); applyTransform(); ensureNoteModal(); layout.nodes.forEach(n=>{ const el=document.getElementById(n.id); if(el){ el.addEventListener('contextmenu',e=>{ e.preventDefault(); showIconMenu(el,n); }); el.addEventListener('dblclick',()=>showIconMenu(el,n)); }}); announce('Diagram loaded'); }).catch(()=>{});
 })();

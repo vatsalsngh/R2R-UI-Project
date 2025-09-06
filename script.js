@@ -140,6 +140,201 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('resize', ()=>{ clearTimeout(resizeTO); resizeTO=setTimeout(setWideScreenFlag,120); }, { passive: true });
         window.addEventListener('orientationchange', setWideScreenFlag);
 
+    // Workspace selector in top nav and API client (site-wide)
+    (function(){
+            const API_BASE = (window.R2R_API_BASE || 'http://localhost:5050');
+            // Minimal client
+            const api = {
+                async getWorkspaces(){ const r = await fetch(`${API_BASE}/api/workspaces`); if(!r.ok) throw new Error('Failed to load workspaces'); return r.json(); },
+                async createWorkspace(name){ const r = await fetch(`${API_BASE}/api/workspaces`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})}); if(!r.ok) throw new Error((await r.json()).error||'Create failed'); return r.json(); },
+                async renameWorkspace(id, name){ const r = await fetch(`${API_BASE}/api/workspaces/${id}`, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})}); if(!r.ok) throw new Error((await r.json()).error||'Rename failed'); return r.json(); },
+                async deleteWorkspace(id){ const r = await fetch(`${API_BASE}/api/workspaces/${id}`, {method:'DELETE'}); if(!r.ok) throw new Error((await r.json()).error||'Delete failed'); return r.json(); },
+                async getNotes(id){ const r = await fetch(`${API_BASE}/api/workspaces/${id}/notes`); if(!r.ok) throw new Error('Failed to load notes'); return r.json(); },
+                async setNote(id, nodeId, text){ const r = await fetch(`${API_BASE}/api/workspaces/${id}/notes/${encodeURIComponent(nodeId)}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})}); if(!r.ok) throw new Error('Save failed'); return r.json(); },
+            };
+
+                        // Simplify top-right nav to only Home, then inject Workspace control next to it
+                        function setupNavShell(){
+                                const nav = document.querySelector('nav.site-nav');
+                                if(!nav) return;
+                                const ul = nav.querySelector('ul');
+                                if(ul){
+                                        // Keep only the Home link
+                                        [...ul.querySelectorAll('li')].forEach((li, idx)=>{
+                                                const a = li.querySelector('a');
+                                                const isHome = a && /index\.html(#.*)?$/.test(a.getAttribute('href')||'');
+                                                if(!(idx===0 && isHome)) li.remove();
+                                        });
+                                }
+                        }
+
+                        // Workspace UI (nav button + dropdown panel)
+                        function ensureWorkspaceNav(){
+                                if(document.getElementById('wsNavBtn')) return;
+                                const nav = document.querySelector('nav.site-nav');
+                                const ul = nav?.querySelector('ul');
+                                if(!nav || !ul) return;
+                                const li = document.createElement('li');
+                                li.className = 'ws-nav';
+                                li.innerHTML = `
+                                    <button id="wsNavBtn" class="ws-btn" aria-haspopup="true" aria-expanded="false" aria-controls="wsMenu">
+                                        <span class="ws-icon" aria-hidden="true">🗂️</span>
+                                        <span class="ws-label">Workspace:</span>
+                                        <span id="wsCurrentName" class="ws-current">None</span>
+                                        <span class="ws-caret" aria-hidden="true">▾</span>
+                                    </button>
+                                    <div id="wsMenu" class="ws-dropdown" role="menu" aria-hidden="true">
+                                        <div class="ws-row">
+                                            <label for="wsSelect" class="ws-select-label">Select workspace</label>
+                                            <select id="wsSelect" class="ws-select"></select>
+                                        </div>
+                                        <div class="ws-actions">
+                                            <button id="wsCreate" class="btn">Create</button>
+                                            <button id="wsRename" class="btn">Rename</button>
+                                            <button id="wsDelete" class="btn secondary">Delete</button>
+                                        </div>
+                                    </div>`;
+                                ul.appendChild(li);
+
+                                // Toggle dropdown
+                                const btn = li.querySelector('#wsNavBtn');
+                                const menu = li.querySelector('#wsMenu');
+                                const closeMenu = ()=>{ menu.setAttribute('aria-hidden','true'); btn.setAttribute('aria-expanded','false'); };
+                                const openMenu = ()=>{ menu.setAttribute('aria-hidden','false'); btn.setAttribute('aria-expanded','true'); };
+                                btn.addEventListener('click', (e)=>{
+                                        e.preventDefault();
+                                        const isOpen = menu.getAttribute('aria-hidden')==='false';
+                                        if(isOpen) closeMenu(); else openMenu();
+                                });
+                                document.addEventListener('click', (e)=>{
+                                        if(!li.contains(e.target)) closeMenu();
+                                });
+                                window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMenu(); });
+                        }
+
+            // Generic app modal
+            function ensureAppModal(){
+                if(document.getElementById('appModalBackdrop')) return;
+                const backdrop = document.createElement('div');
+                backdrop.id = 'appModalBackdrop'; backdrop.className='app-modal-backdrop';
+                backdrop.innerHTML = `<div class="app-modal" role="dialog" aria-modal="true" aria-labelledby="appModalTitle"><header><h3 id="appModalTitle">Dialog</h3><div class="actions"><button type="button" class="btn secondary" id="appCancel">Close</button><button type="button" class="btn" id="appPrimary">OK</button></div></header><div id="appModalBody"></div><div class="message" id="appModalMsg"></div></div>`;
+                document.body.appendChild(backdrop);
+                backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) hideAppModal(); });
+                document.getElementById('appCancel').addEventListener('click', hideAppModal);
+                window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && backdrop.style.display==='flex') hideAppModal(); });
+            }
+            function showAppModal({ title, bodyHTML, primaryText, onPrimary }){
+                ensureAppModal();
+                const backdrop = document.getElementById('appModalBackdrop');
+                document.getElementById('appModalTitle').textContent = title || 'Dialog';
+                document.getElementById('appModalBody').innerHTML = bodyHTML || '';
+                const primary = document.getElementById('appPrimary');
+                primary.textContent = primaryText || 'OK';
+                primary.onclick = async ()=>{ try{ await onPrimary?.(); } catch(e){ document.getElementById('appModalMsg').textContent = (e?.message)||'Action failed'; return; } };
+                document.getElementById('appModalMsg').textContent = '';
+                backdrop.style.display='flex';
+            }
+            function hideAppModal(){ const backdrop = document.getElementById('appModalBackdrop'); if(backdrop) backdrop.style.display='none'; }
+
+            const LOCAL_KEY = 'r2r_selected_workspace';
+            let currentWorkspaceId = null;
+            let currentNotes = {};
+
+            async function loadWorkspacesAndInit(){
+                setupNavShell();
+                ensureWorkspaceNav();
+                const select = document.getElementById('wsSelect');
+                const currentNameEl = document.getElementById('wsCurrentName');
+                try {
+                    const ws = await api.getWorkspaces();
+                    select.innerHTML = ws.map(w=>`<option value="${w.id}">${w.name}</option>`).join('');
+                    const saved = localStorage.getItem(LOCAL_KEY);
+                    if(saved && ws.some(w=>w.id===saved)){
+                        select.value = saved; currentWorkspaceId = saved; const match = ws.find(w=>w.id===saved); currentNameEl.textContent = match?.name || 'Unnamed';
+                    } else if(ws.length === 0) {
+                        // No workspace: show create modal
+                        showAppModal({
+                            title: 'Create your first workspace',
+                            bodyHTML: '<form><input id="wsNameInput" placeholder="Workspace name" /></form>',
+                            primaryText: 'Create',
+                            onPrimary: async ()=>{
+                                const name = document.getElementById('wsNameInput').value.trim();
+                                if(!name) throw new Error('Please enter a name');
+                                await api.createWorkspace(name);
+                                hideAppModal();
+                                await loadWorkspacesAndInit();
+                            }
+                        });
+                        select.innerHTML = '<option value="" disabled selected>Create a workspace to begin</option>';
+                        currentWorkspaceId = null; currentNameEl.textContent = 'None';
+                    } else {
+                        // Add placeholder and prompt via message (non-blocking)
+                        select.insertAdjacentHTML('afterbegin','<option value="" disabled selected>Select a workspace…</option>');
+                        currentWorkspaceId = null; currentNameEl.textContent = 'None';
+                    }
+                    await reloadNotesAndBadges();
+                } catch(err){
+                    // API offline – still wire UI and show disabled placeholder
+                    select.innerHTML = '<option value="" disabled selected>API offline</option>';
+                    currentWorkspaceId = null; if(currentNameEl) currentNameEl.textContent='Offline';
+                }
+                wireWorkspaceEvents();
+            }
+
+            function wireWorkspaceEvents(){
+                const select = document.getElementById('wsSelect');
+                const createBtn = document.getElementById('wsCreate');
+                const renameBtn = document.getElementById('wsRename');
+                const deleteBtn = document.getElementById('wsDelete');
+                const currentNameEl = document.getElementById('wsCurrentName');
+                select.onchange = async ()=>{ currentWorkspaceId = select.value; localStorage.setItem(LOCAL_KEY, currentWorkspaceId); const opt = select.options[select.selectedIndex]; if(opt) currentNameEl.textContent = opt.textContent; await reloadNotesAndBadges(); };
+                createBtn.onclick = ()=> showAppModal({
+                    title: 'Create workspace',
+                    bodyHTML: '<form><input id="wsNameInput" placeholder="Workspace name" /></form>',
+                    primaryText: 'Create',
+                    onPrimary: async ()=>{ const name = document.getElementById('wsNameInput').value.trim(); if(!name) throw new Error('Please enter a name'); await api.createWorkspace(name); hideAppModal(); await loadWorkspacesAndInit(); }
+                });
+                renameBtn.onclick = ()=>{ if(!currentWorkspaceId) return; const current = select.options[select.selectedIndex]?.text||''; showAppModal({ title:'Rename workspace', bodyHTML:`<form><input id="wsNameInput" value="${current.replace(/"/g,'&quot;')}" /></form>`, primaryText:'Rename', onPrimary: async ()=>{ const name = document.getElementById('wsNameInput').value.trim(); if(!name) throw new Error('Please enter a name'); await api.renameWorkspace(currentWorkspaceId, name); hideAppModal(); await loadWorkspacesAndInit(); } }); };
+                deleteBtn.onclick = ()=>{
+                    if(!currentWorkspaceId) return;
+                    const wsName = select.options[select.selectedIndex]?.text || 'this workspace';
+                    showAppModal({
+                        title:'Delete workspace',
+                        bodyHTML:`<p>Are you sure you want to delete <strong>${esc(wsName)}</strong> and all its notes?</p>`,
+                        primaryText:'Delete',
+                        onPrimary: async ()=>{ await api.deleteWorkspace(currentWorkspaceId); hideAppModal(); localStorage.removeItem(LOCAL_KEY); await loadWorkspacesAndInit(); }
+                    });
+                };
+            }
+
+            async function reloadNotesAndBadges(){
+                if(!currentWorkspaceId) return;
+                try { currentNotes = await api.getNotes(currentWorkspaceId); } catch { currentNotes = {}; }
+                // Update badges for all nodes (if diagram already rendered)
+                if(window.R2R_LAYOUT){
+                    window.R2R_LAYOUT.nodes.forEach(n=>{
+                        const g = document.getElementById(n.id);
+                        if(!g) return;
+                        const icon = g.querySelector('.note-icon-svg');
+                        if(!icon) return;
+                        icon.querySelectorAll('.note-icon-badge').forEach(d=>d.remove());
+                        if(currentNotes && currentNotes[n.id] && String(currentNotes[n.id]).trim()){
+                            const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+                            dot.setAttribute('class','note-icon-badge'); dot.setAttribute('cx','24'); dot.setAttribute('cy','2'); dot.setAttribute('r','3'); icon.appendChild(dot);
+                        }
+                    });
+                }
+            }
+
+            // Expose API to flow-diagram.js
+            window.__R2R_API__ = { api, getWorkspaceId: ()=>currentWorkspaceId, getCurrentNotes: ()=>currentNotes, reloadNotesAndBadges, setNote: (nodeId, text)=> api.setNote(currentWorkspaceId, nodeId, text) };
+
+            // Initialize on all pages
+            loadWorkspacesAndInit().catch(()=>{});
+
+            // Auth features intentionally removed for now
+        })();
+
         // Lazy load flow-diagram module only when diagram host approaches viewport
         const diagramHost = document.getElementById('diagramHost');
         if (diagramHost && !window.__FLOW_DIAGRAM_LAZY__) {
