@@ -156,18 +156,16 @@ main { flex: 1 0 auto; display: block; }
 .site-nav .ws-nav { position: relative; }
 .site-nav .ws-btn {
   display: inline-flex; align-items: center; gap: 0.5ch;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(130,160,255,0.18);
-  color: var(--text);
+  /* Match Home button active/hover look by default */
+  background: rgba(120,150,255,0.12);
+  border: 1px solid rgba(140,200,255,0.38);
+  color: #fff;
   font-weight: 700; font-size: 0.98em; line-height:1;
   padding: 0.45em 0.9em; border-radius: 8px; cursor: pointer; /* match nav link padding */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  box-shadow: 0 2px 6px -2px rgba(40,60,120,0.55);
+  transition: background .18s ease, color .18s ease, border-color .3s ease, box-shadow .25s ease, filter .2s ease;
 }
-.site-nav .ws-btn:hover, .site-nav .ws-btn[aria-expanded="true"] {
-  background: rgba(120,150,255,0.12);
-  color: #fff;
-  border-color: rgba(140,200,255,0.38);
-}
+.site-nav .ws-btn:hover, .site-nav .ws-btn[aria-expanded="true"] { filter: brightness(1.06); box-shadow: 0 3px 10px -2px rgba(40,60,120,0.65); }
 .site-nav .ws-current { color: var(--brand-contrast); font-weight: 800; }
 .site-nav .ws-icon { display:inline-flex; align-items:center; line-height:0; }
 .site-nav .ws-caret { display:inline-block; line-height:1; }
