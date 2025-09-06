@@ -197,8 +197,9 @@
         const text=document.createElementNS('http://www.w3.org/2000/svg','text'); text.setAttribute('text-anchor','middle');
         lines.forEach((ln,i)=>{ const tspan=document.createElementNS('http://www.w3.org/2000/svg','tspan'); tspan.setAttribute('x', cellX+width/2); tspan.setAttribute('y', firstY + i*CFG.node.lineGap+4); tspan.textContent=ln; text.appendChild(tspan); });
         g.appendChild(text); const title=document.createElementNS('http://www.w3.org/2000/svg','title'); title.textContent=n.label; g.appendChild(title);
-        // Notes icon (top-right)
+        // Notes icon (top-right) – only when a workspace is selected
         (function(){
+          try { if(!window.__R2R_API__ || !window.__R2R_API__.getWorkspaceId || !window.__R2R_API__.getWorkspaceId()) return; } catch(_) { /* no-op */ }
           const ICON_W = 26, ICON_H = 22, PAD = 8;
           const ig = document.createElementNS('http://www.w3.org/2000/svg','g');
           ig.classList.add('note-icon-svg');

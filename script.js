@@ -239,18 +239,167 @@ document.addEventListener('DOMContentLoaded', function() {
             const LOCAL_KEY = 'r2r_selected_workspace';
             let currentWorkspaceId = null;
             let currentNotes = {};
+            const PAGE_NOTES_KEY = 'page:maintain-finance-master-data-process-flows';
+
+            // Ensure a page-level notes button exists on the Process Flows page (outside the diagram)
+            function ensurePageNotesButton(){
+                const isProcessFlows = !!document.querySelector('main.flow-page') && /Maintain Finance Master Data/i.test(document.title);
+                if(!isProcessFlows) return;
+                const host = document.querySelector('.diagram-wrapper');
+                if(!host) return;
+                // Create toolbar above diagram
+                let bar = document.getElementById('flowToolbar');
+                if(!bar){
+                    bar = document.createElement('div');
+                    bar.id = 'flowToolbar';
+                    bar.className = 'flow-toolbar';
+                    host.parentNode.insertBefore(bar, host);
+                }
+                // If a button already exists elsewhere, move it into the toolbar
+                let btn = document.getElementById('pageNotesBtn');
+                if(!btn){
+                    btn = document.createElement('button');
+                    btn.id = 'pageNotesBtn';
+                    btn.className = 'page-notes-btn';
+                    btn.type = 'button';
+                    btn.setAttribute('title','General Notes');
+                    btn.innerHTML = `<span class=\"emoji\" aria-hidden=\"true\">📝</span><span class=\"label\">Notes</span>`;
+                    btn.addEventListener('click', ()=>{
+                        if(!currentWorkspaceId) return; // guarded by CSS hidden state too
+                        const existing = (currentNotes && currentNotes[PAGE_NOTES_KEY]) || '';
+                        showAppModal({
+                            title: 'General Notes',
+                            bodyHTML: `<div><textarea id=\"pageNotesText\" placeholder=\"Capture feedback, discussions, pain points, decisions, etc.\">${existing.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea></div>`,
+                            primaryText: 'Save',
+                            onPrimary: async ()=>{
+                                const text = document.getElementById('pageNotesText').value;
+                                await api.setNote(currentWorkspaceId, PAGE_NOTES_KEY, text);
+                                // refresh local cache & badge
+                                currentNotes[PAGE_NOTES_KEY] = text;
+                                updatePageNotesBadge();
+                                hideAppModal();
+                            }
+                        });
+                    });
+                }
+                // Ensure button is in the toolbar
+                if(btn.parentElement !== bar){ bar.appendChild(btn); }
+                updatePageNotesBadge();
+            }
+
+            // Ensure a Notes Summary button sits to the right of Notes
+            function ensureNotesSummaryButton(){
+                const isProcessFlows = !!document.querySelector('main.flow-page') && /Maintain Finance Master Data/i.test(document.title);
+                if(!isProcessFlows) return;
+                const bar = document.getElementById('flowToolbar');
+                if(!bar) return; // created by ensurePageNotesButton
+                let sBtn = document.getElementById('notesSummaryBtn');
+                if(!sBtn){
+                    sBtn = document.createElement('button');
+                    sBtn.id = 'notesSummaryBtn';
+                    sBtn.className = 'summary-btn';
+                    sBtn.type = 'button';
+                    sBtn.setAttribute('title','Notes Summary');
+                    sBtn.innerHTML = `<span class=\"emoji\" aria-hidden=\"true\">📄</span><span class=\"label\">Summary</span>`;
+                    sBtn.addEventListener('click', async ()=>{
+                        if(!currentWorkspaceId) return;
+                        // Load fresh notes
+                        let notes = {};
+                        try { notes = await api.getNotes(currentWorkspaceId); } catch { notes = currentNotes || {}; }
+                        const general = (notes && notes[PAGE_NOTES_KEY]) ? String(notes[PAGE_NOTES_KEY]).trim() : '';
+                        const entries = Object.entries(notes||{})
+                            .filter(([k,v])=> k !== PAGE_NOTES_KEY && v && String(v).trim());
+                        // Map IDs to titles using the layout if available
+                        const getTitle = (id)=>{
+                            const layout = window.R2R_LAYOUT;
+                            if(layout && Array.isArray(layout.nodes)){
+                                const n = layout.nodes.find(x=> String(x.id) === String(id));
+                                return n?.title || n?.label || n?.name || n?.text || String(id);
+                            }
+                            return String(id);
+                        };
+                        const nodeNotes = entries.map(([id, text])=> ({ id, title: getTitle(id), text: String(text) }));
+                        nodeNotes.sort((a,b)=> a.title.localeCompare(b.title));
+                        const hasAny = !!general || nodeNotes.length>0;
+                        // Build HTML (escaped)
+                        const escHtml = (s)=> String(s).replace(/[&<>]/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+                        const nl2br = (s)=> escHtml(s).replace(/\n/g,'<br>');
+                        let html = `<div class=\"summary-content\">`;
+                        if(general){ html += `<section class=\"sum-section\"><h4>General Notes</h4><div class=\"sum-text\">${nl2br(general)}</div></section>`; }
+                        if(nodeNotes.length){
+                            html += `<section class=\"sum-section\"><h4>Task Notes</h4>`;
+                            nodeNotes.forEach(n=>{ html += `<div class=\"sum-item\"><div class=\"sum-title\">${escHtml(n.title)}</div><div class=\"sum-text\">${nl2br(n.text)}</div></div>`; });
+                            html += `</section>`;
+                        }
+                        if(!hasAny){ html += `<div class=\"sum-empty\">No notes found for this workspace.</div>`; }
+                        html += `</div>`;
+                        // Build plain text for copy
+                        let plain = '';
+                        if(general){ plain += `General Notes:\n${general}\n\n`; }
+                        if(nodeNotes.length){
+                            plain += `Task Notes:\n`;
+                            nodeNotes.forEach(n=>{ plain += `- ${n.title}\n${n.text}\n\n`; });
+                        }
+                        showAppModal({
+                            title: 'Notes Summary',
+                            bodyHTML: html,
+                            primaryText: 'Copy',
+                            onPrimary: async ()=>{
+                                try {
+                                    await navigator.clipboard.writeText(plain || '');
+                                    const msgEl = document.getElementById('appModalMsg');
+                                    if(msgEl) msgEl.textContent = 'Summary copied to clipboard.';
+                                } catch(e){
+                                    throw new Error('Copy failed');
+                                }
+                            }
+                        });
+                    });
+                }
+                if(sBtn.parentElement !== bar){ bar.appendChild(sBtn); }
+                updateSummaryButtonVisibility();
+            }
+
+            function updateSummaryButtonVisibility(){
+                const btn = document.getElementById('notesSummaryBtn');
+                if(!btn) return;
+                if(!currentWorkspaceId) btn.classList.add('hidden'); else btn.classList.remove('hidden');
+            }
+
+            function updatePageNotesBadge(){
+                const btn = document.getElementById('pageNotesBtn');
+                if(!btn) return;
+                // Hide when no workspace selected (CSS also hides)
+                if(!currentWorkspaceId){ btn.classList.add('hidden'); return; } else { btn.classList.remove('hidden'); }
+                // Badge indicator
+                const has = !!(currentNotes && currentNotes[PAGE_NOTES_KEY] && String(currentNotes[PAGE_NOTES_KEY]).trim());
+                let badge = btn.querySelector('.page-notes-badge');
+                if(has){
+                    if(!badge){
+                        badge = document.createElement('span');
+                        badge.className = 'page-notes-badge';
+                        badge.setAttribute('aria-hidden','true');
+                        btn.appendChild(badge);
+                    }
+                } else {
+                    if(badge) badge.remove();
+                }
+            }
 
             async function loadWorkspacesAndInit(){
                 setupNavShell();
                 ensureWorkspaceNav();
+                ensurePageNotesButton();
                 const select = document.getElementById('wsSelect');
                 const currentNameEl = document.getElementById('wsCurrentName');
                 try {
                     const ws = await api.getWorkspaces();
                     select.innerHTML = ws.map(w=>`<option value="${w.id}">${w.name}</option>`).join('');
                     const saved = localStorage.getItem(LOCAL_KEY);
-                    if(saved && ws.some(w=>w.id===saved)){
-                        select.value = saved; currentWorkspaceId = saved; const match = ws.find(w=>w.id===saved); currentNameEl.textContent = match?.name || 'Unnamed';
+                    if(saved && ws.some(w=>String(w.id)===String(saved))){
+                        select.value = String(saved); currentWorkspaceId = String(saved); const match = ws.find(w=>String(w.id)===String(saved)); currentNameEl.textContent = match?.name || 'Unnamed';
+                        document.body.classList.remove('no-ws');
+                        updatePageNotesBadge(); updateSummaryButtonVisibility();
                     } else if(ws.length === 0) {
                         // No workspace: show create modal
                         showAppModal({
@@ -260,25 +409,35 @@ document.addEventListener('DOMContentLoaded', function() {
                             onPrimary: async ()=>{
                                 const name = document.getElementById('wsNameInput').value.trim();
                                 if(!name) throw new Error('Please enter a name');
-                                await api.createWorkspace(name);
+                                const created = await api.createWorkspace(name);
+                                const newId = String(created?.id ?? '');
+                                if(newId){ localStorage.setItem(LOCAL_KEY, newId); currentWorkspaceId = newId; }
                                 hideAppModal();
                                 await loadWorkspacesAndInit();
                             }
                         });
                         select.innerHTML = '<option value="" disabled selected>Create a workspace to begin</option>';
                         currentWorkspaceId = null; currentNameEl.textContent = 'None';
+                        document.body.classList.add('no-ws');
+                        updatePageNotesBadge(); updateSummaryButtonVisibility();
                     } else {
                         // Add placeholder and prompt via message (non-blocking)
                         select.insertAdjacentHTML('afterbegin','<option value="" disabled selected>Select a workspace…</option>');
                         currentWorkspaceId = null; currentNameEl.textContent = 'None';
+                        document.body.classList.add('no-ws');
+                        updatePageNotesBadge(); updateSummaryButtonVisibility();
                     }
                     await reloadNotesAndBadges();
                 } catch(err){
                     // API offline – still wire UI and show disabled placeholder
                     select.innerHTML = '<option value="" disabled selected>API offline</option>';
                     currentWorkspaceId = null; if(currentNameEl) currentNameEl.textContent='Offline';
+                    document.body.classList.add('no-ws');
+                    updatePageNotesBadge(); updateSummaryButtonVisibility();
                 }
                 wireWorkspaceEvents();
+                // Ensure summary button exists after toolbar established
+                ensureNotesSummaryButton();
             }
 
             function wireWorkspaceEvents(){
@@ -287,12 +446,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 const renameBtn = document.getElementById('wsRename');
                 const deleteBtn = document.getElementById('wsDelete');
                 const currentNameEl = document.getElementById('wsCurrentName');
-                select.onchange = async ()=>{ currentWorkspaceId = select.value; localStorage.setItem(LOCAL_KEY, currentWorkspaceId); const opt = select.options[select.selectedIndex]; if(opt) currentNameEl.textContent = opt.textContent; await reloadNotesAndBadges(); };
+                select.onchange = async ()=>{
+                    currentWorkspaceId = select.value;
+                    if(currentWorkspaceId){ document.body.classList.remove('no-ws'); }
+                    else { document.body.classList.add('no-ws'); }
+                    localStorage.setItem(LOCAL_KEY, currentWorkspaceId);
+                    const opt = select.options[select.selectedIndex];
+                    if(opt) currentNameEl.textContent = opt.textContent;
+                    updatePageNotesBadge(); updateSummaryButtonVisibility();
+                    await reloadNotesAndBadges();
+                };
                 createBtn.onclick = ()=> showAppModal({
                     title: 'Create workspace',
                     bodyHTML: '<form><input id="wsNameInput" placeholder="Workspace name" /></form>',
                     primaryText: 'Create',
-                    onPrimary: async ()=>{ const name = document.getElementById('wsNameInput').value.trim(); if(!name) throw new Error('Please enter a name'); await api.createWorkspace(name); hideAppModal(); await loadWorkspacesAndInit(); }
+                    onPrimary: async ()=>{
+                        const name = document.getElementById('wsNameInput').value.trim();
+                        if(!name) throw new Error('Please enter a name');
+                        const created = await api.createWorkspace(name);
+                        const newId = String(created?.id ?? '');
+                        if(newId){ localStorage.setItem(LOCAL_KEY, newId); currentWorkspaceId = newId; }
+                        hideAppModal();
+                        await loadWorkspacesAndInit();
+                    }
                 });
                 renameBtn.onclick = ()=>{ if(!currentWorkspaceId) return; const current = select.options[select.selectedIndex]?.text||''; showAppModal({ title:'Rename workspace', bodyHTML:`<form><input id="wsNameInput" value="${current.replace(/"/g,'&quot;')}" /></form>`, primaryText:'Rename', onPrimary: async ()=>{ const name = document.getElementById('wsNameInput').value.trim(); if(!name) throw new Error('Please enter a name'); await api.renameWorkspace(currentWorkspaceId, name); hideAppModal(); await loadWorkspacesAndInit(); } }); };
                 deleteBtn.onclick = ()=>{
@@ -302,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         title:'Delete workspace',
                         bodyHTML:`<p>Are you sure you want to delete <strong>${esc(wsName)}</strong> and all its notes?</p>`,
                         primaryText:'Delete',
-                        onPrimary: async ()=>{ await api.deleteWorkspace(currentWorkspaceId); hideAppModal(); localStorage.removeItem(LOCAL_KEY); await loadWorkspacesAndInit(); }
+                        onPrimary: async ()=>{ await api.deleteWorkspace(currentWorkspaceId); hideAppModal(); localStorage.removeItem(LOCAL_KEY); document.body.classList.add('no-ws'); updatePageNotesBadge(); updateSummaryButtonVisibility(); await loadWorkspacesAndInit(); }
                     });
                 };
             }
@@ -324,6 +500,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                 }
+                // Update page-level notes badge and summary button visibility
+                updatePageNotesBadge();
+                updateSummaryButtonVisibility();
             }
 
             // Expose API to flow-diagram.js
