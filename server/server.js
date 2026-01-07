@@ -3,10 +3,20 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname, join, extname, relative } from 'path';
 import initSqlJs from 'sql.js';
+import mammoth from 'mammoth';
+import * as XLSX from 'xlsx';
+
+// Handle unhandled errors
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
 
 const app = express();
 const PORT = process.env.PORT || 5050;
@@ -218,6 +228,56 @@ app.put('/api/workspaces/:id/notes/:nodeId', async (req, res) => {
     await db.run('DELETE FROM notes WHERE workspace_id = ? AND node_id = ?', id, nodeId);
   }
   res.json({ ok: true });
+});
+
+// File listing and serving routes
+app.get('/api/files', (req, res) => {
+  const dataDir = join(__dirname, '..', 'data');
+  const files = [];
+  function scanDir(dir) {
+    const items = readdirSync(dir);
+    for (const item of items) {
+      const fullPath = join(dir, item);
+      const stat = statSync(fullPath);
+      if (stat.isDirectory()) {
+        scanDir(fullPath);
+      } else {
+        const ext = extname(item).toLowerCase();
+        if (['.docx', '.xlsx', '.pptx'].includes(ext)) {
+          files.push({
+            name: item,
+            path: relative(dataDir, fullPath).replace(/\\/g, '/'),
+            type: ext.slice(1)
+          });
+        }
+      }
+    }
+  }
+  scanDir(dataDir);
+  res.json(files);
+});
+
+app.get('/api/files/:filename(*)', async (req, res) => {
+  const filename = decodeURIComponent(req.params.filename);
+  console.log('Request for file:', filename);
+  const dataDir = join(__dirname, '..', 'data');
+  const filePath = join(dataDir, filename);
+  console.log('File path:', filePath);
+  if (!existsSync(filePath)) {
+    console.log('File not found');
+    return res.status(404).json({ error: 'File not found' });
+  }
+  const ext = extname(filename).toLowerCase();
+  // For now, provide download link for all
+  res.send(`<p>File: ${filename}</p><p><a href="/api/download/${encodeURIComponent(filename)}" target="_blank">Download ${ext.toUpperCase()} file</a></p>`);
+});
+
+app.get('/api/download/:filename(*)', (req, res) => {
+  const filename = decodeURIComponent(req.params.filename);
+  const dataDir = join(__dirname, '..', 'data');
+  const filePath = join(dataDir, filename);
+  if (!existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+  res.download(filePath);
 });
 
 app.listen(PORT, () => {
