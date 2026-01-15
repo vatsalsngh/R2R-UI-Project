@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Process Flows</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="brand"><span class="logo-mark" aria-hidden="true">FS</span><span class="sr-only">Finance Suite</span> Finance Suite</div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#solutions">Solutions</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </nav>
+  <main class="solutions-section" role="main">
+    <nav aria-label="Breadcrumb" class="breadcrumb"><a href="index.html">Home</a><a href="record-to-report.html">Record to Report</a><span id="flow-group">Process Flows</span></nav>
+    <h1 class="section-title" style="margin-top:0;" id="flow-title">Process Flows</h1>
+    <p style="text-align:center;color:var(--muted);max-width:860px;margin:0.35rem auto 1.5rem;font-weight:500;">Detailed process flow assets for this domain are being curated.</p>
+    <section class="card" style="max-width:820px;margin:0 auto;">
+      <h2 style="margin-top:0;">What’s next</h2>
+      <ul style="color:var(--muted);line-height:1.6;">
+        <li>Process flow diagrams</li>
+        <li>Swimlane ownership views</li>
+        <li>Control and handoff annotations</li>
+      </ul>
+    </section>
+    <div class="nav-controls"><button onclick="history.back()">Go Back</button></div>
+  </main>
+  <footer class="site-footer" id="site-footer"><div>© 2025 Finance Suite.</div><small>All rights reserved.</small></footer>
+  <script src="script.js" defer></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const group = params.get('group');
+    if (group) {
+      const safeGroup = group.replace(/\+/g, ' ');
+      const title = `Process Flows – ${safeGroup}`;
+      document.title = title;
+      const titleEl = document.getElementById('flow-title');
+      const breadcrumbEl = document.getElementById('flow-group');
+      if (titleEl) titleEl.textContent = title;
+      if (breadcrumbEl) breadcrumbEl.textContent = safeGroup;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools &amp; Technology</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="Tools and Technology options">
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="brand"><span class="logo-mark" aria-hidden="true">FS</span><span class="sr-only">Finance Suite</span> Finance Suite</div>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#solutions">Solutions</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <main class="solutions-section" role="main">
+        <nav aria-label="Breadcrumb" class="breadcrumb">
+            <a href="index.html">Home</a>
+            <a href="record-to-report.html">Record to Report</a>
+            <a id="flowCrumbLink" href="record-to-report.html" style="display:none"></a>
+            <span id="flowCrumbText" style="display:none"></span>
+            <span>Tools &amp; Technology</span>
+        </nav>
+        <h1 class="section-title" id="pageTitle" style="margin-top:0;">Tools &amp; Technology</h1>
+        <p id="flowSubtitle" style="text-align:center;color:var(--muted);max-width:860px;margin:0.35rem auto 1.5rem;font-weight:500;">Explore enabling platforms and automation.</p>
+        <div class="options-grid compact" role="list">
+            <div class="option-card" role="listitem"><span class="option-icon">🤖</span><span class="option-title t-85">Digital Enablers &amp; Automation Layer</span><span class="option-desc t-65">Platforms, tooling, and automation stack</span></div>
+        </div>
+        <div class="nav-controls"><button onclick="window.history.back()">Go Back</button></div>
+    </main>
+    <footer class="site-footer" id="site-footer"><div>© 2025 Finance Suite.</div><small>All rights reserved.</small></footer>
+    <script src="script.js" defer></script>
+    <script>
+        (function(){
+            const params = new URLSearchParams(window.location.search);
+            const flow = params.get('flow');
+            const flowUrl = params.get('flowUrl');
+            const link = document.getElementById('flowCrumbLink');
+            const text = document.getElementById('flowCrumbText');
+            const title = document.getElementById('pageTitle');
+            const subtitle = document.getElementById('flowSubtitle');
+            if (flow) {
+                document.title = `Tools & Technology – ${flow}`;
+                title.textContent = `Tools & Technology – ${flow}`;
+                subtitle.textContent = `Explore technology enablement for ${flow}.`;
+                if (flowUrl) {
+                    link.textContent = flow;
+                    link.href = flowUrl;
+                    link.style.display = 'inline';
+                } else {
+                    text.textContent = flow;
+                    text.style.display = 'inline';
+                }
+            }
+        })();
+    </script>
+</body>
+</html>

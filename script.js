@@ -48,18 +48,29 @@ function handleIconClick(type, pageName) {
         'leading-practices': 'data/leading-practices.csv',
         'kpis': 'data/kpis.csv',
         'persona-models': 'data/persona-models.csv',
-        'activity-placement': 'data/activity-placement.csv'
+        'activity-placement': 'data/activity-placement.csv',
+        'best-practices': 'data/leading-practices.csv',
+        'activity-split': 'data/activity-placement.csv'
     };
     const headingMap = {
         'leading-practices': 'Leading Practices',
         'kpis': 'KPIs',
         'persona-models': 'Persona Models',
-        'activity-placement': 'Activity Placement'
+        'activity-placement': 'Activity Placement',
+        'best-practices': 'Best Practices',
+        'activity-split': 'Activity Split',
+        'fte-cost-benchmarking': 'FTE & Cost Benchmarking',
+        'key-challenges': 'Key Challenges & Pain Points'
     };
     const file = fileMap[type];
     const heading = headingMap[type];
-    if (!file) return;
     const container = document.getElementById('table-container');
+    if (!container) return;
+    if (!file) {
+        const title = heading || 'Details';
+        container.innerHTML = `<section class=card><h2 class="table-heading">${title}</h2><p class="empty-state">Content coming soon.</p></section>`;
+        return;
+    }
     container.innerHTML = `<p style="color:var(--muted);font-size:0.9em;">Loading ${heading}…</p>`;
     (async () => {
         try {
@@ -534,4 +545,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 const s=document.createElement('script'); s.src='flow-diagram.js'; s.defer=true; document.head.appendChild(s);
             }
         }
+});
+
+// Category navigation for flow pages (Delivery Enablers / Service Placement / Tools & Technology)
+document.addEventListener('DOMContentLoaded', function() {
+    const catLinks = document.querySelectorAll('[data-cat]');
+    if (!catLinks.length) return;
+
+    const dynamic = document.getElementById('group-dynamic');
+    const getFlowContext = () => {
+        const headingEl =
+            document.querySelector('.hero-header h1') ||
+            document.querySelector('header h1') ||
+            document.querySelector('main h1') ||
+            document.querySelector('h1');
+        const flowName = (headingEl?.textContent || document.title || '').trim();
+        const flowUrl = (window.location.pathname || '').split('/').pop();
+        return { flowName, flowUrl };
+    };
+
+    const navToCategory = (page) => {
+        const { flowName, flowUrl } = getFlowContext();
+        const params = new URLSearchParams();
+        if (flowName) params.set('flow', flowName);
+        if (flowUrl) params.set('flowUrl', flowUrl);
+        const suffix = params.toString() ? `?${params.toString()}` : '';
+        window.location.href = `${page}${suffix}`;
+    };
+
+    const titleMap = {
+        metadata: 'Metadata',
+        'kpi-leading-practices': 'KPIs & Leading Practices',
+        'ai-automation': 'AI & Automation'
+    };
+
+    catLinks.forEach(a => a.addEventListener('click', (e) => {
+        const cat = a.dataset.cat;
+        if (!cat) return;
+
+        if (cat === 'delivery-enablers') {
+            e.preventDefault();
+            navToCategory('delivery-enablers.html');
+            return;
+        }
+        if (cat === 'service-placement') {
+            e.preventDefault();
+            navToCategory('service-placement.html');
+            return;
+        }
+        if (cat === 'tools-tech') {
+            e.preventDefault();
+            navToCategory('tools-technology.html');
+            return;
+        }
+
+        if (dynamic) {
+            e.preventDefault();
+            const title = titleMap[cat] || cat.replace(/-/g, ' ');
+            dynamic.innerHTML = `<section class=card><h3 style='margin-top:0;'>${title}</h3><p style='color:var(--muted);'>Content coming soon.</p></section>`;
+            window.scrollTo({ top: dynamic.offsetTop - 60, behavior: 'smooth' });
+        }
+    }));
 });

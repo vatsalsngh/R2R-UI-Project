@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Enablers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="Delivery Enablers options">
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="brand"><span class="logo-mark" aria-hidden="true">FS</span><span class="sr-only">Finance Suite</span> Finance Suite</div>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#solutions">Solutions</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <main class="solutions-section" role="main">
+        <nav aria-label="Breadcrumb" class="breadcrumb">
+            <a href="index.html">Home</a>
+            <a href="record-to-report.html">Record to Report</a>
+            <a id="flowCrumbLink" href="record-to-report.html" style="display:none"></a>
+            <span id="flowCrumbText" style="display:none"></span>
+            <span>Delivery Enablers</span>
+        </nav>
+        <h1 class="section-title" id="pageTitle" style="margin-top:0;">Delivery Enablers</h1>
+        <p id="flowSubtitle" style="text-align:center;color:var(--muted);max-width:860px;margin:0.35rem auto 1.5rem;font-weight:500;">Select a capability area to explore.</p>
+        <div class="options-grid compact" role="list">
+            <div class="option-card" role="listitem"><span class="option-icon">🛡️</span><span class="option-title t-85">Governance &amp; Policy Framework</span><span class="option-desc t-65">Structure, policies, and decision rights</span></div>
+            <div class="option-card" role="listitem"><span class="option-icon">🚀</span><span class="option-title t-85">Leading Practices &amp; Delivery Enablers</span><span class="option-desc t-65">Playbooks, accelerators, and standards</span></div>
+            <div class="option-card" role="listitem"><span class="option-icon">🗂️</span><span class="option-title t-85">Master Data &amp; Analytics Layer</span><span class="option-desc t-65">Data models, stewardship, and insights</span></div>
+            <div class="option-card" role="listitem"><span class="option-icon">✅</span><span class="option-title t-85">Risk, Compliance &amp; Audit Trail</span><span class="option-desc t-65">Controls, compliance, and traceability</span></div>
+        </div>
+        <div class="nav-controls"><button onclick="window.history.back()">Go Back</button></div>
+    </main>
+    <footer class="site-footer" id="site-footer"><div>© 2025 Finance Suite.</div><small>All rights reserved.</small></footer>
+    <script src="script.js" defer></script>
+    <script>
+        (function(){
+            const params = new URLSearchParams(window.location.search);
+            const flow = params.get('flow');
+            const flowUrl = params.get('flowUrl');
+            const link = document.getElementById('flowCrumbLink');
+            const text = document.getElementById('flowCrumbText');
+            const title = document.getElementById('pageTitle');
+            const subtitle = document.getElementById('flowSubtitle');
+            if (flow) {
+                document.title = `Delivery Enablers – ${flow}`;
+                title.textContent = `Delivery Enablers – ${flow}`;
+                subtitle.textContent = `Select a capability area for ${flow}.`;
+                if (flowUrl) {
+                    link.textContent = flow;
+                    link.href = flowUrl;
+                    link.style.display = 'inline';
+                } else {
+                    text.textContent = flow;
+                    text.style.display = 'inline';
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
