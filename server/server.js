@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname, join, extname, relative } from 'path';
+import { dirname, join, extname, relative, resolve, sep, basename } from 'path';
 import initSqlJs from 'sql.js';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
@@ -25,6 +25,8 @@ const __dirname = dirname(__filename);
 const DATA_DIR = join(__dirname, 'data');
 if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 const DB_PATH = join(DATA_DIR, 'r2r.sqlite');
+const DATA_FILES_DIR = join(__dirname, '..', 'data_files');
+const GOV_POLICY_DIR = join(DATA_FILES_DIR, '01_Governance_Policy_Framework');
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '512kb' }));
@@ -255,6 +257,59 @@ app.get('/api/files', (req, res) => {
   }
   scanDir(dataDir);
   res.json(files);
+});
+
+function safeResolve(baseDir, targetPath) {
+  const base = resolve(baseDir) + sep;
+  const resolved = resolve(baseDir, targetPath);
+  if (!resolved.startsWith(base)) return null;
+  return resolved;
+}
+
+function listOfficeFiles(rootDir) {
+  const files = [];
+  const allowed = new Set(['.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx', '.xlsm', '.pptm', '.docm']);
+  function scanDir(dir) {
+    const items = readdirSync(dir);
+    for (const item of items) {
+      const fullPath = join(dir, item);
+      const stat = statSync(fullPath);
+      if (stat.isDirectory()) {
+        scanDir(fullPath);
+      } else {
+        const ext = extname(item).toLowerCase();
+        if (allowed.has(ext)) {
+          files.push({
+            name: item,
+            path: relative(rootDir, fullPath).replace(/\\/g, '/'),
+            type: ext.slice(1)
+          });
+        }
+      }
+    }
+  }
+  if (existsSync(rootDir)) scanDir(rootDir);
+  return files;
+}
+
+app.get('/api/governance-policy-files', (req, res) => {
+  const files = listOfficeFiles(GOV_POLICY_DIR);
+  res.json(files);
+});
+
+app.get('/api/governance-policy-files/open/:filename(*)', (req, res) => {
+  const filename = decodeURIComponent(req.params.filename || '');
+  const fullPath = safeResolve(GOV_POLICY_DIR, filename);
+  if (!fullPath || !existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
+  res.setHeader('Content-Disposition', `inline; filename="${basename(fullPath)}"`);
+  res.sendFile(fullPath);
+});
+
+app.get('/api/governance-policy-files/download/:filename(*)', (req, res) => {
+  const filename = decodeURIComponent(req.params.filename || '');
+  const fullPath = safeResolve(GOV_POLICY_DIR, filename);
+  if (!fullPath || !existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
+  res.download(fullPath);
 });
 
 app.get('/api/files/:filename(*)', async (req, res) => {

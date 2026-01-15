@@ -666,10 +666,34 @@ button.option-card.icon-btn, .option-card.icon-btn { padding: 0.9rem 0.95rem 0.9
   vertical-align: middle; /* keep content centered vertically */
   line-height: 1.2;
 }
+.data-table tbody td:nth-child(2) { text-align: left; }
 .data-table tbody tr:nth-child(even) { background: var(--primary-light); }
-.data-table tbody tr:hover { background: #eef3ff; }
+.data-table tbody tr:hover { background: color-mix(in srgb, var(--surface) 70%, #ffffff 30%); }
 .data-table tbody tr:last-child td { border-bottom: none; }
 .empty-state { color: var(--muted); font-weight: 600; }
+
+/* File table action buttons */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--brand-contrast);
+  background: linear-gradient(var(--card-glass), var(--card-glass)) padding-box,
+              linear-gradient(135deg, var(--brand), var(--accent)) border-box;
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.16s ease, filter 0.16s ease;
+}
+.action-btn.secondary {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 85%, #000 15%), color-mix(in srgb, var(--surface) 85%, #000 15%));
+  border: 1px solid color-mix(in srgb, var(--brand-contrast) 14%, transparent);
+}
+.action-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
 
 /* Footer */
 .site-footer {

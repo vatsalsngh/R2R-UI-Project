@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Data &amp; Governance – Delivery Enablers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="Delivery Enablers files for Master Data & Governance">
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="brand"><span class="logo-mark" aria-hidden="true">FS</span><span class="sr-only">Finance Suite</span> Finance Suite</div>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="record-to-report.html">Record to Report</a></li>
+            <li><a href="master-data-governance.html" class="active">Master Data &amp; Governance</a></li>
+        </ul>
+    </nav>
+    <main class="solutions-section" role="main">
+        <nav aria-label="Breadcrumb" class="breadcrumb">
+            <a href="index.html">Home</a>
+            <a href="record-to-report.html">Record to Report</a>
+            <a href="master-data-governance.html">Master Data &amp; Governance</a>
+            <span>Delivery Enablers</span>
+        </nav>
+        <h1 class="section-title" style="margin-top:0;">Delivery Enablers</h1>
+        <p class="intro-text" style="margin:0 auto 1.5rem;">Governance &amp; Policy Framework artifacts available for review and download.</p>
+        <div class="table-responsive">
+            <table class="data-table" aria-describedby="page-title">
+                <thead>
+                    <tr>
+                        <th style="width:70px;">SNo</th>
+                        <th>File Name</th>
+                        <th style="width:160px;">Open</th>
+                        <th style="width:180px;">Download</th>
+                    </tr>
+                </thead>
+                <tbody id="fileTableBody">
+                    <tr><td colspan="4" class="empty-state">Loading files…</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="nav-controls"><button onclick="window.history.back()">Go Back</button></div>
+    </main>
+    <footer class="site-footer" id="site-footer"><div>© 2025 Finance Suite.</div><small>All rights reserved.</small></footer>
+    <script>
+        (function(){
+            const API_BASE = (window.R2R_API_BASE || 'http://localhost:5050');
+            const tbody = document.getElementById('fileTableBody');
+
+            function renderEmpty(message){
+                tbody.innerHTML = `<tr><td colspan="4" class="empty-state">${message}</td></tr>`;
+            }
+
+            async function loadFiles(){
+                try {
+                    const res = await fetch(`${API_BASE}/api/governance-policy-files`);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const files = await res.json();
+                    if (!Array.isArray(files) || files.length === 0) {
+                        renderEmpty('No Office files found in data_files/01_Governance_Policy_Framework.');
+                        return;
+                    }
+                    tbody.innerHTML = '';
+                    files.forEach((file, idx) => {
+                        const tr = document.createElement('tr');
+                        const openUrl = `${API_BASE}/api/governance-policy-files/open/${encodeURIComponent(file.path)}`;
+                        const downloadUrl = `${API_BASE}/api/governance-policy-files/download/${encodeURIComponent(file.path)}`;
+                        tr.innerHTML = `
+                            <td style="text-align:center;">${idx + 1}</td>
+                            <td>${file.name}</td>
+                            <td style="text-align:center;"><a class="action-btn secondary" href="${openUrl}" target="_blank" rel="noopener">Open</a></td>
+                            <td style="text-align:center;"><a class="action-btn secondary" href="${downloadUrl}">Download</a></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } catch (e) {
+                    renderEmpty(`Error loading files: ${e.message}. Make sure the server is running on ${API_BASE}.`);
+                }
+            }
+
+            loadFiles();
+        })();
+    </script>
+</body>
+</html>
