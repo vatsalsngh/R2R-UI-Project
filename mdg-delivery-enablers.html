@@ -72,14 +72,64 @@
                         tr.innerHTML = `
                             <td style="text-align:center;">${idx + 1}</td>
                             <td>${file.name}</td>
-                            <td style="text-align:center;"><a class="action-btn secondary" href="${openUrl}" target="_blank" rel="noopener">Open</a></td>
+                            <td style="text-align:center;"><button type="button" class="action-btn secondary" data-open-url="${openUrl}" data-file-name="${file.name}">Open</button></td>
                             <td style="text-align:center;"><a class="action-btn secondary" href="${downloadUrl}">Download</a></td>
                         `;
                         tbody.appendChild(tr);
                     });
+
+                    document.querySelectorAll('[data-open-url]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const fileUrl = btn.getAttribute('data-open-url');
+                            const fileName = btn.getAttribute('data-file-name') || 'Document';
+                            openViewer(fileUrl, fileName);
+                        });
+                    });
                 } catch (e) {
                     renderEmpty(`Error loading files: ${e.message}. Make sure the server is running on ${API_BASE}.`);
                 }
+            }
+
+            function ensureViewer(){
+                if (document.getElementById('docViewerBackdrop')) return;
+                const backdrop = document.createElement('div');
+                backdrop.id = 'docViewerBackdrop';
+                backdrop.className = 'doc-viewer-backdrop';
+                backdrop.innerHTML = `
+                    <div class="doc-viewer" role="dialog" aria-modal="true" aria-labelledby="docViewerTitle">
+                        <header>
+                            <h3 id="docViewerTitle">Document</h3>
+                            <button type="button" class="action-btn secondary" id="docViewerClose">Close</button>
+                        </header>
+                        <div class="doc-viewer-body">
+                            <iframe id="docViewerFrame" title="Document viewer" loading="lazy"></iframe>
+                        </div>
+                        <div class="doc-viewer-note" id="docViewerNote"></div>
+                    </div>`;
+                document.body.appendChild(backdrop);
+                backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) closeViewer(); });
+                document.getElementById('docViewerClose').addEventListener('click', closeViewer);
+                window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeViewer(); });
+            }
+
+            function openViewer(fileUrl, title){
+                ensureViewer();
+                const backdrop = document.getElementById('docViewerBackdrop');
+                const frame = document.getElementById('docViewerFrame');
+                const note = document.getElementById('docViewerNote');
+                document.getElementById('docViewerTitle').textContent = title;
+                const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+                frame.src = viewerUrl;
+                note.textContent = 'If the preview does not load, the file URL must be publicly accessible for Office Online Viewer.';
+                backdrop.style.display = 'flex';
+            }
+
+            function closeViewer(){
+                const backdrop = document.getElementById('docViewerBackdrop');
+                if (!backdrop) return;
+                const frame = document.getElementById('docViewerFrame');
+                frame.src = 'about:blank';
+                backdrop.style.display = 'none';
             }
 
             loadFiles();
