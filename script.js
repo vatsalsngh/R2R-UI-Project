@@ -137,9 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
         // Wide-screen layout class injection (debounced)
-        const setWideScreenFlag = () => {
+            const setWideScreenFlag = () => {
             const physicalWidth = Math.round(window.innerWidth * (window.devicePixelRatio || 1));
-            if (physicalWidth >= 1880 || window.innerWidth >= 1600) {
+            if (physicalWidth >= 1700 || window.innerWidth >= 1400) {
                 document.body.classList.add('wide-screen');
             } else {
                 document.body.classList.remove('wide-screen');

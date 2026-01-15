@@ -32,10 +32,10 @@ html, body {
   --hero-heading: #0b1220;
   --connector-color: color-mix(in srgb, var(--brand-contrast) 40%, var(--text) 60%);
   /* Unified primary box text size (process items & option titles) */
-  --box-text-size: 0.88rem;
+  --box-text-size: 0.82rem;
   /* Enhanced option card title sizing (scales slightly with viewport) */
-  --option-title-min: 0.98rem;
-  --option-title-max: 1.18rem;
+  --option-title-min: 0.9rem;
+  --option-title-max: 1.06rem;
 
   /* Flow diagram theming (aligned with site brand; replaces ad‑hoc gold/orange) */
   --flow-node-fill-start: color-mix(in srgb, var(--brand) 42%, #182231);
@@ -301,9 +301,9 @@ main { flex: 1 0 auto; display: block; }
 
 /* Solutions Section */
 .solutions-section {
-  max-width: 1100px;
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 3em 2em 2.5em 2em;
+  padding: 3em 2.2em 2.5em 2.2em;
   text-align: center;
 }
 .flow-grid {
@@ -438,7 +438,7 @@ main { flex: 1 0 auto; display: block; }
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 1.2em;
+  gap: 0.9em;
   justify-content: center;
   margin-top: 0.5em;
 }
@@ -450,27 +450,32 @@ main { flex: 1 0 auto; display: block; }
 }
 .options-grid.compact { --compact-gap: 1.25rem; gap: var(--compact-gap); }
 .options-grid.compact .option-card {
-  width: clamp(100px, calc((min(1200px, 100vw - 3rem) - (8 * var(--compact-gap))) / 9), 132px);
+  width: clamp(120px, calc((min(1200px, 100vw - 2.5rem) - (6 * var(--compact-gap))) / 5), 170px);
   min-width: 0;
   max-width: none;
   padding: 0.8em 0.8em 0.7em 0.8em;
 }
 .options-grid.compact .option-icon { font-size: 1.4em; }
-.options-grid.compact .option-title { line-height: 1.18; text-align: center; }
+.options-grid.compact .option-title {
+  line-height: 1.15;
+  text-align: center;
+  font-size: clamp(0.8rem, 0.74rem + 0.3vw, 0.95rem);
+  letter-spacing: 0.35px;
+}
 .option-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   background: var(--card-glass);
   color: var(--brand-contrast);
-  padding: 1.2em 1.5em 1em 1.5em;
+  padding: 1.05em 1.2em 0.9em 1.2em;
   border-radius: 18px;
   box-shadow: var(--card-shadow);
   text-decoration: none;
   font-size: 1em;
   font-weight: 700;
-  min-width: 170px;
-  max-width: 210px;
+  min-width: 150px;
+  max-width: 190px;
   transition: transform 0.18s cubic-bezier(.4,0,.2,1), box-shadow 0.18s cubic-bezier(.4,0,.2,1), background 0.18s cubic-bezier(.4,0,.2,1), color 0.18s cubic-bezier(.4,0,.2,1);
   margin-bottom: 0.5em;
   border: var(--card-border);
@@ -479,6 +484,11 @@ main { flex: 1 0 auto; display: block; }
   letter-spacing: 0.5px;
   opacity: 0;
   transform: translateY(24px) scale(0.98);
+}
+button.option-card {
+  font-family: inherit;
+  color: inherit;
+  background: inherit;
 }
 .option-card.in-view { animation: cardFadeIn 0.6s var(--transition) forwards; }
 .option-card:hover {
@@ -489,24 +499,36 @@ main { flex: 1 0 auto; display: block; }
   box-shadow: var(--shadow-md);
 }
 .option-icon {
-  font-size: 2.2em;
+  font-size: 2em;
   margin-bottom: 0.5em;
 }
 .option-title {
   /* Slightly larger & responsive compared to body/process text */
-  font-size: clamp(var(--option-title-min), 0.9rem + 0.4vw, var(--option-title-max));
+  font-size: clamp(var(--option-title-min), 0.86rem + 0.35vw, var(--option-title-max));
   font-weight: 800;
   margin-bottom: 0.35em;
   letter-spacing: 0.6px;
   line-height: 1.15;
 }
 .option-desc {
-  font-size: 0.98em;
+  font-size: 0.88em;
   color: var(--muted);
   margin-bottom: 0.2em;
   font-weight: 500;
 }
 .option-card:hover .option-desc { color: var(--brand-contrast); }
+
+/* Home page: slightly tighter option cards for better fit at higher scaling */
+.home-page .options-grid { gap: 0.8em; }
+.home-page .option-card {
+  padding: 0.72em 0.85em 0.64em 0.85em;
+  min-width: 110px;
+  max-width: 135px;
+}
+.home-page .option-icon { font-size: 1.4em; }
+.home-page .option-title { font-size: clamp(0.66rem, 0.62rem + 0.25vw, 0.78rem); }
+.home-page .option-desc { font-size: 0.64em; }
+
 
 /* Icon button style cards (e.g., Leading Practices, KPIs, Persona Models, Activity Placement) */
 .icon-btn .option-icon { font-size: 1.05rem; margin-bottom: 0.4em; }
@@ -515,7 +537,7 @@ main { flex: 1 0 auto; display: block; }
 .icon-btn .option-desc { font-size: 0.65em; }
 
 /* Typography utilities (replacing repeated inline font-sizes) */
-.t-85 { font-size:0.85rem !important; }
+.t-85 { font-size:0.8rem !important; }
 .t-65 { font-size:0.65em !important; }
 
 /* Ensure consistency if these are buttons or links */
@@ -869,6 +891,7 @@ main { background: var(--surface); box-shadow: var(--shadow-sm); border-radius: 
 }
 .r2r-col-header { font-size: 1.02rem; font-weight: 800; text-align: center; background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 45%, transparent), color-mix(in srgb, var(--accent) 25%, transparent)); color: var(--brand-contrast); padding: 0.46rem 0.52rem 0.54rem 0.52rem; border-radius: 9px; line-height: 1.15; letter-spacing: 0.38px; position: relative; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-contrast) 15%, transparent); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.34rem; min-height:72px; height:72px; text-decoration:none; }
 .r2r-col-header:hover, .r2r-col-header:focus-visible { background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 60%, transparent), color-mix(in srgb, var(--accent) 38%, transparent)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-contrast) 10%, transparent), var(--shadow-sm); }
+.r2r-page .r2r-matrix .r2r-col-header { font-size: 0.68rem !important; line-height: 1.08; letter-spacing: 0.2px; }
 .r2r-col-header:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 60%, transparent); outline-offset: 2px; }
 .r2r-icon { font-size:1.15rem; line-height:1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25)); margin-bottom:0.05rem; }
 /* header arrow connectors (hidden on narrow screens) */
@@ -877,6 +900,7 @@ main { background: var(--surface); box-shadow: var(--shadow-sm); border-radius: 
 .r2r-column:last-child .r2r-col-header::after, .r2r-column:last-child .r2r-col-header::before { display: none; }
 .process-item { background: color-mix(in srgb, var(--brand-contrast) 5%, var(--card-glass)); border: 1px solid color-mix(in srgb, var(--brand-contrast) 20%, transparent); color: var(--text); font-size: var(--box-text-size); font-weight: 600; padding: 0.62rem 0.5rem; border-radius: 8px; line-height: 1.22; letter-spacing: 0.32px; text-align: center; word-break: break-word; transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition); }
 .process-item:hover { background: var(--brand); color: var(--brand-contrast); transform: translateY(-2px); box-shadow: var(--shadow-sm); cursor: default; }
+.r2r-page .r2r-matrix .process-item { font-size: 0.6rem !important; line-height: 1.12; letter-spacing: 0.2px; }
 .process-item.process-link { cursor: pointer; text-decoration: none; display:block; }
 .process-item.process-link:hover { /* unify hover color with non-link items */
   background: var(--brand);
