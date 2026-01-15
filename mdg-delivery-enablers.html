@@ -49,6 +49,10 @@
     <script>
         (function(){
             const API_BASE = (window.R2R_API_BASE || 'http://localhost:5050');
+            const COLLABORA_BASE = (window.R2R_COLLABORA_BASE || 'http://localhost:9980');
+            const WOPI_BASE = (window.R2R_WOPI_BASE || API_BASE.replace('localhost', 'host.docker.internal'));
+            const WOPI_TOKEN = (window.R2R_WOPI_TOKEN || 'dev-token');
+            let collaboraUrlTemplate = null;
             const tbody = document.getElementById('fileTableBody');
 
             function renderEmpty(message){
@@ -67,22 +71,23 @@
                     tbody.innerHTML = '';
                     files.forEach((file, idx) => {
                         const tr = document.createElement('tr');
-                        const openUrl = `${API_BASE}/api/governance-policy-files/open/${encodeURIComponent(file.path)}`;
+                        const fileId = file.id;
                         const downloadUrl = `${API_BASE}/api/governance-policy-files/download/${encodeURIComponent(file.path)}`;
                         tr.innerHTML = `
                             <td style="text-align:center;">${idx + 1}</td>
                             <td>${file.name}</td>
-                            <td style="text-align:center;"><button type="button" class="action-btn secondary" data-open-url="${openUrl}" data-file-name="${file.name}">Open</button></td>
+                            <td style="text-align:center;"><button type="button" class="action-btn secondary" data-file-id="${fileId}" data-file-name="${file.name}" data-file-ext="${file.type}">Open</button></td>
                             <td style="text-align:center;"><button type="button" class="action-btn secondary" data-download-url="${downloadUrl}">Download</button></td>
                         `;
                         tbody.appendChild(tr);
                     });
 
-                    document.querySelectorAll('[data-open-url]').forEach(btn => {
+                    document.querySelectorAll('[data-file-id]').forEach(btn => {
                         btn.addEventListener('click', () => {
-                            const fileUrl = btn.getAttribute('data-open-url');
+                            const fileId = btn.getAttribute('data-file-id');
                             const fileName = btn.getAttribute('data-file-name') || 'Document';
-                            openViewer(fileUrl, fileName);
+                            const fileExt = btn.getAttribute('data-file-ext') || '';
+                            if (fileId) openViewer(fileId, fileName, fileExt);
                         });
                     });
                     document.querySelectorAll('[data-download-url]').forEach(btn => {
@@ -118,15 +123,33 @@
                 window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeViewer(); });
             }
 
-            function openViewer(fileUrl, title){
+            async function openViewer(fileId, title, ext){
                 ensureViewer();
                 const backdrop = document.getElementById('docViewerBackdrop');
                 const frame = document.getElementById('docViewerFrame');
                 const note = document.getElementById('docViewerNote');
                 document.getElementById('docViewerTitle').textContent = title;
-                const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
-                frame.src = viewerUrl;
-                note.textContent = 'If the preview does not load, the file URL must be publicly accessible for Office Online Viewer.';
+                const wopiSrc = `${WOPI_BASE}/wopi/files/${encodeURIComponent(fileId)}`;
+                if (!collaboraUrlTemplate) {
+                    try {
+                        const res = await fetch(`${API_BASE}/api/collabora-url?base=${encodeURIComponent(COLLABORA_BASE)}&ext=${encodeURIComponent(ext || '')}`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            collaboraUrlTemplate = data.urlsrc;
+                        }
+                    } catch {}
+                }
+                if (!collaboraUrlTemplate) {
+                    note.textContent = 'Unable to load Collabora discovery. Ensure Collabora is running and reachable.';
+                    frame.src = 'about:blank';
+                    backdrop.style.display = 'flex';
+                    return;
+                }
+                const collaboraUrl = new URL(collaboraUrlTemplate);
+                collaboraUrl.searchParams.set('WOPISrc', wopiSrc);
+                collaboraUrl.searchParams.set('access_token', WOPI_TOKEN);
+                frame.src = collaboraUrl.toString();
+                note.textContent = 'If the preview does not load, ensure Collabora can reach the WOPI URL and the WOPI token matches.';
                 backdrop.style.display = 'flex';
             }
 

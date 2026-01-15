@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  collabora:
+    image: collabora/code:latest
+    container_name: r2r-collabora
+    ports:
+      - "9980:9980"
+    environment:
+      - domain=localhost\|127\.0\.0\.1\|host\.docker\.internal
+      - username=admin
+      - password=admin
+      - extra_params=--o:ssl.enable=false --o:storage.wopi.host=host.docker.internal --o:net.frame_ancestors=*
+    cap_add:
+      - MKNOD
+    restart: unless-stopped

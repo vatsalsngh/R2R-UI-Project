@@ -27,6 +27,9 @@ if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 const DB_PATH = join(DATA_DIR, 'r2r.sqlite');
 const DATA_FILES_DIR = join(__dirname, '..', 'data_files');
 const GOV_POLICY_DIR = join(DATA_FILES_DIR, '01_Governance_Policy_Framework');
+const WOPI_TOKEN = process.env.WOPI_TOKEN || 'dev-token';
+const WOPI_LOCKS = new Map();
+const COLLABORA_BASE = process.env.COLLABORA_BASE || 'http://localhost:9980';
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '512kb' }));
@@ -279,10 +282,13 @@ function listOfficeFiles(rootDir) {
       } else {
         const ext = extname(item).toLowerCase();
         if (allowed.has(ext)) {
+          const relPath = relative(rootDir, fullPath).replace(/\\/g, '/');
+          const id = Buffer.from(relPath).toString('base64url');
           files.push({
             name: item,
-            path: relative(rootDir, fullPath).replace(/\\/g, '/'),
-            type: ext.slice(1)
+            path: relPath,
+            type: ext.slice(1),
+            id
           });
         }
       }
@@ -295,6 +301,119 @@ function listOfficeFiles(rootDir) {
 app.get('/api/governance-policy-files', (req, res) => {
   const files = listOfficeFiles(GOV_POLICY_DIR);
   res.json(files);
+});
+
+app.get('/api/collabora-url', async (req, res) => {
+  try {
+    const base = String(req.query?.base || COLLABORA_BASE).replace(/\/+$/, '');
+    const ext = String(req.query?.ext || '').replace(/^\./, '').toLowerCase();
+    const discoveryUrl = `${base}/hosting/discovery`;
+    const resp = await fetch(discoveryUrl);
+    if (!resp.ok) return res.status(502).json({ error: `Discovery failed: ${resp.status}` });
+    const xml = await resp.text();
+    let match = null;
+    if (ext) {
+      const extRegex = new RegExp(`<action[^>]*ext="${ext}"[^>]*urlsrc="([^"]+)"`, 'i');
+      match = xml.match(extRegex);
+    }
+    if (!match) {
+      match = xml.match(/urlsrc="([^"]+)"/i);
+    }
+    if (!match) return res.status(502).json({ error: 'No urlsrc in discovery' });
+    const urlsrc = match[1].replace(/&amp;/g, '&');
+    res.json({ urlsrc, base });
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) });
+  }
+});
+
+function verifyWopiToken(req, res) {
+  const token = req.query?.access_token;
+  if (!token || token !== WOPI_TOKEN) {
+    res.status(401).json({ error: 'Invalid WOPI token' });
+    return false;
+  }
+  return true;
+}
+
+function getGovFilePathFromId(id) {
+  try {
+    const relPath = Buffer.from(String(id), 'base64url').toString('utf8');
+    return safeResolve(GOV_POLICY_DIR, relPath);
+  } catch {
+    return null;
+  }
+}
+
+app.get('/wopi/files/:id', (req, res) => {
+  if (!verifyWopiToken(req, res)) return;
+  const filePath = getGovFilePathFromId(req.params.id);
+  if (!filePath || !existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+  const stat = statSync(filePath);
+  const fileName = basename(filePath);
+  res.json({
+    BaseFileName: fileName,
+    Size: stat.size,
+    OwnerId: 'r2r-owner',
+    UserId: 'r2r-user',
+    UserFriendlyName: 'R2R User',
+    Version: String(stat.mtimeMs),
+    UserCanWrite: true,
+    SupportsLocks: true,
+    SupportsUpdate: true,
+    LastModifiedTime: new Date(stat.mtimeMs).toISOString()
+  });
+});
+
+app.all('/wopi/files/:id/contents', express.raw({ type: '*/*', limit: '100mb' }), (req, res) => {
+  if (!verifyWopiToken(req, res)) return;
+  const filePath = getGovFilePathFromId(req.params.id);
+  if (!filePath || !existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+
+  const override = req.header('X-WOPI-Override');
+  const lock = req.header('X-WOPI-Lock') || '';
+  const currentLock = WOPI_LOCKS.get(req.params.id) || '';
+
+  if (req.method === 'GET' || !override) {
+    return res.sendFile(filePath);
+  }
+
+  if (override === 'LOCK') {
+    if (currentLock && currentLock !== lock) {
+      res.set('X-WOPI-Lock', currentLock);
+      return res.status(409).send('Lock mismatch');
+    }
+    WOPI_LOCKS.set(req.params.id, lock);
+    return res.status(200).send('');
+  }
+
+  if (override === 'UNLOCK') {
+    if (currentLock !== lock) {
+      res.set('X-WOPI-Lock', currentLock);
+      return res.status(409).send('Lock mismatch');
+    }
+    WOPI_LOCKS.delete(req.params.id);
+    return res.status(200).send('');
+  }
+
+  if (override === 'REFRESH_LOCK') {
+    if (currentLock !== lock) {
+      res.set('X-WOPI-Lock', currentLock);
+      return res.status(409).send('Lock mismatch');
+    }
+    return res.status(200).send('');
+  }
+
+  if (override === 'PUT') {
+    if (currentLock && currentLock !== lock) {
+      res.set('X-WOPI-Lock', currentLock);
+      return res.status(409).send('Lock mismatch');
+    }
+    writeFileSync(filePath, req.body);
+    return res.status(200).send('');
+  }
+
+  return res.status(501).send('Not implemented');
 });
 
 app.get('/api/governance-policy-files/open/:filename(*)', (req, res) => {
