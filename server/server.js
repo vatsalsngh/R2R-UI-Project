@@ -26,7 +26,7 @@ const DATA_DIR = join(__dirname, 'data');
 if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 const DB_PATH = join(DATA_DIR, 'r2r.sqlite');
 const DATA_FILES_DIR = join(__dirname, '..', 'data_files');
-const GOV_POLICY_DIR = join(DATA_FILES_DIR, '01_Governance_Policy_Framework');
+const GOV_POLICY_DIR = join(DATA_FILES_DIR, '01-governance-policy-framework');
 const WOPI_TOKEN = process.env.WOPI_TOKEN || 'dev-token';
 const WOPI_LOCKS = new Map();
 const COLLABORA_BASE = process.env.COLLABORA_BASE || 'http://localhost:9980';
