@@ -1,0 +1,84 @@
+Category,Count,Last Updated
+Journal Entry,120,2025-08-01
+Journal Entry,132,2025-08-02
+Journal Entry,98,2025-08-03
+Journal Entry,110,2025-08-04
+Journal Entry,125,2025-08-05
+Journal Entry,140,2025-08-06
+Reconciliation,45,2025-08-02
+Reconciliation,52,2025-08-03
+Reconciliation,39,2025-08-04
+Reconciliation,41,2025-08-05
+Reconciliation,48,2025-08-06
+Reconciliation,50,2025-08-07
+Financial Close,7,2025-08-03
+Financial Close,8,2025-08-04
+Financial Close,9,2025-08-05
+Financial Close,6,2025-08-06
+Financial Close,10,2025-08-07
+Financial Close,7,2025-08-08
+Reporting,30,2025-08-01
+Reporting,28,2025-08-02
+Reporting,33,2025-08-03
+Reporting,26,2025-08-04
+Reporting,31,2025-08-05
+Reporting,29,2025-08-06
+Intercompany,12,2025-08-02
+Intercompany,14,2025-08-03
+Intercompany,10,2025-08-04
+Intercompany,16,2025-08-05
+Intercompany,13,2025-08-06
+Intercompany,15,2025-08-07
+Fixed Assets,25,2025-08-01
+Fixed Assets,22,2025-08-02
+Fixed Assets,27,2025-08-03
+Fixed Assets,24,2025-08-04
+Fixed Assets,29,2025-08-05
+Fixed Assets,26,2025-08-06
+Accounts Reconciliation,10,2025-08-03
+Accounts Reconciliation,12,2025-08-04
+Accounts Reconciliation,9,2025-08-05
+Accounts Reconciliation,11,2025-08-06
+Accounts Reconciliation,13,2025-08-07
+Accounts Reconciliation,14,2025-08-08
+Master Data & Governance,18,2025-08-08
+Master Data & Governance,20,2025-08-09
+General Accounting and Reporting,34,2025-08-08
+General Accounting and Reporting,32,2025-08-09
+Intercompany Accounting,16,2025-08-08
+Intercompany Accounting,18,2025-08-09
+Fixed Assets Accounting,28,2025-08-07
+Fixed Assets Accounting,30,2025-08-08
+Tax & Transfer Pricing,12,2025-08-08
+Tax & Transfer Pricing,14,2025-08-09
+Month End Close,9,2025-08-09
+Month End Close,11,2025-08-10
+Balance Sheet Account Reconciliation,16,2025-08-09
+Balance Sheet Account Reconciliation,17,2025-08-10
+Consolidation and Reporting,29,2025-08-08
+Consolidation and Reporting,27,2025-08-09
+Compliance,22,2025-08-08
+Compliance,24,2025-08-09
+Master Data & Governance,19,2025-08-10
+Master Data & Governance,21,2025-08-11
+Master Data & Governance,23,2025-08-12
+General Accounting and Reporting,31,2025-08-10
+General Accounting and Reporting,29,2025-08-11
+General Accounting and Reporting,35,2025-08-12
+Intercompany Accounting,17,2025-08-10
+Intercompany Accounting,19,2025-08-11
+Intercompany Accounting,20,2025-08-12
+Fixed Assets Accounting,31,2025-08-09
+Fixed Assets Accounting,27,2025-08-10
+Fixed Assets Accounting,29,2025-08-11
+Tax & Transfer Pricing,15,2025-08-10
+Tax & Transfer Pricing,16,2025-08-11
+Tax & Transfer Pricing,13,2025-08-12
+Month End Close,12,2025-08-11
+Month End Close,10,2025-08-12
+Balance Sheet Account Reconciliation,18,2025-08-11
+Balance Sheet Account Reconciliation,19,2025-08-12
+Consolidation and Reporting,26,2025-08-10
+Consolidation and Reporting,28,2025-08-11
+Compliance,23,2025-08-10
+Compliance,25,2025-08-11
