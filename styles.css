@@ -688,6 +688,8 @@ button.option-card.icon-btn, .option-card.icon-btn { padding: 0.9rem 0.95rem 0.9
   border: 1px solid transparent;
   box-shadow: var(--shadow-sm);
   transition: transform 0.16s ease, filter 0.16s ease;
+  cursor: pointer;
+  appearance: none;
 }
 .action-btn.secondary {
   background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 85%, #000 15%), color-mix(in srgb, var(--surface) 85%, #000 15%));

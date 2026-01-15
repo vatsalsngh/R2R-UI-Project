@@ -73,7 +73,7 @@
                             <td style="text-align:center;">${idx + 1}</td>
                             <td>${file.name}</td>
                             <td style="text-align:center;"><button type="button" class="action-btn secondary" data-open-url="${openUrl}" data-file-name="${file.name}">Open</button></td>
-                            <td style="text-align:center;"><a class="action-btn secondary" href="${downloadUrl}">Download</a></td>
+                            <td style="text-align:center;"><button type="button" class="action-btn secondary" data-download-url="${downloadUrl}">Download</button></td>
                         `;
                         tbody.appendChild(tr);
                     });
@@ -83,6 +83,12 @@
                             const fileUrl = btn.getAttribute('data-open-url');
                             const fileName = btn.getAttribute('data-file-name') || 'Document';
                             openViewer(fileUrl, fileName);
+                        });
+                    });
+                    document.querySelectorAll('[data-download-url]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const downloadUrl = btn.getAttribute('data-download-url');
+                            if (downloadUrl) window.location.href = downloadUrl;
                         });
                     });
                 } catch (e) {
