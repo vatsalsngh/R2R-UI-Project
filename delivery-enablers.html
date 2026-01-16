@@ -30,10 +30,10 @@
         <h1 class="section-title" id="pageTitle" style="margin-top:0;">Delivery Enablers</h1>
         <p id="flowSubtitle" style="text-align:center;color:var(--muted);max-width:860px;margin:0.35rem auto 1.5rem;font-weight:500;">Select a capability area to explore.</p>
         <div class="options-grid compact" role="list">
-            <div class="option-card" role="listitem"><span class="option-icon">🛡️</span><span class="option-title t-85">Governance &amp; Policy Framework</span><span class="option-desc t-65">Structure, policies, and decision rights</span></div>
-            <div class="option-card" role="listitem"><span class="option-icon">🚀</span><span class="option-title t-85">Leading Practices &amp; Delivery Enablers</span><span class="option-desc t-65">Playbooks, accelerators, and standards</span></div>
-            <div class="option-card" role="listitem"><span class="option-icon">🗂️</span><span class="option-title t-85">Master Data &amp; Analytics Layer</span><span class="option-desc t-65">Data models, stewardship, and insights</span></div>
-            <div class="option-card" role="listitem"><span class="option-icon">✅</span><span class="option-title t-85">Risk, Compliance &amp; Audit Trail</span><span class="option-desc t-65">Controls, compliance, and traceability</span></div>
+            <a class="option-card" role="listitem" id="deGovLink" href="#"><span class="option-icon">🛡️</span><span class="option-title t-85">Governance &amp; Policy Framework</span><span class="option-desc t-65">Structure, policies, and decision rights</span></a>
+            <a class="option-card" role="listitem" id="deLeadingLink" href="#"><span class="option-icon">🚀</span><span class="option-title t-85">Leading Practices &amp; Delivery Enablers</span><span class="option-desc t-65">Playbooks, accelerators, and standards</span></a>
+            <a class="option-card" role="listitem" id="deAnalyticsLink" href="#"><span class="option-icon">🗂️</span><span class="option-title t-85">Master Data &amp; Analytics Layer</span><span class="option-desc t-65">Data models, stewardship, and insights</span></a>
+            <a class="option-card" role="listitem" id="deRiskLink" href="#"><span class="option-icon">✅</span><span class="option-title t-85">Risk, Compliance &amp; Audit Trail</span><span class="option-desc t-65">Controls, compliance, and traceability</span></a>
         </div>
         <div class="nav-controls"><button onclick="window.history.back()">Go Back</button></div>
     </main>
@@ -60,6 +60,13 @@
                     text.textContent = flow;
                     text.style.display = 'inline';
                 }
+            }
+
+            if (/General Accounting and Reporting/i.test(flow || '')) {
+                document.getElementById('deGovLink').href = 'gar-governance-policy-framework.html';
+                document.getElementById('deLeadingLink').href = 'gar-leading-practices-delivery-enablers.html';
+                document.getElementById('deAnalyticsLink').href = 'gar-master-data-analytics-layer.html';
+                document.getElementById('deRiskLink').href = 'gar-risk-compliance-audit-trail.html';
             }
         })();
     </script>

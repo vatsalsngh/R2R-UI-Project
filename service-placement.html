@@ -30,7 +30,7 @@
         <h1 class="section-title" id="pageTitle" style="margin-top:0;">Service Placement</h1>
         <p id="flowSubtitle" style="text-align:center;color:var(--muted);max-width:860px;margin:0.35rem auto 1.5rem;font-weight:500;">Define where services are delivered.</p>
         <div class="options-grid compact" role="list">
-            <div class="option-card" role="listitem"><span class="option-icon">🏢</span><span class="option-title t-85">Operating Model &amp; Capability Enablement</span><span class="option-desc t-65">Global, regional, and local delivery alignment</span></div>
+            <a class="option-card" role="listitem" id="serviceOperatingModelLink" href="#"><span class="option-icon">🏢</span><span class="option-title t-85">Operating Model &amp; Capability Enablement</span><span class="option-desc t-65">Global, regional, and local delivery alignment</span></a>
         </div>
         <div class="nav-controls"><button onclick="window.history.back()">Go Back</button></div>
     </main>
@@ -57,6 +57,11 @@
                     text.textContent = flow;
                     text.style.display = 'inline';
                 }
+            }
+
+            if (/General Accounting and Reporting/i.test(flow || '')) {
+                const opLink = document.getElementById('serviceOperatingModelLink');
+                if (opLink) opLink.href = 'gar-operating-model-capability-enablement.html';
             }
         })();
     </script>

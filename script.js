@@ -45,12 +45,12 @@ const CSV_CACHE = new Map();
 
 function handleIconClick(type, pageName) {
     const fileMap = {
-        'leading-practices': 'data/leading-practices.csv',
-        'kpis': 'data/kpis.csv',
-        'persona-models': 'data/persona-models.csv',
-        'activity-placement': 'data/activity-placement.csv',
-        'best-practices': 'data/leading-practices.csv',
-        'activity-split': 'data/activity-placement.csv'
+        'leading-practices': 'data_files/record-to-report/master-data-governance/leading-practices.csv',
+        'kpis': 'data_files/record-to-report/master-data-governance/kpis.csv',
+        'persona-models': 'data_files/record-to-report/master-data-governance/persona-models.csv',
+        'activity-placement': 'data_files/record-to-report/master-data-governance/activity-placement.csv',
+        'best-practices': 'data_files/record-to-report/master-data-governance/leading-practices.csv',
+        'activity-split': 'data_files/record-to-report/master-data-governance/activity-placement.csv'
     };
     const headingMap = {
         'leading-practices': 'Leading Practices',
@@ -250,12 +250,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const LOCAL_KEY = 'r2r_selected_workspace';
             let currentWorkspaceId = null;
             let currentNotes = {};
-            const PAGE_NOTES_KEY = 'page:maintain-finance-master-data-process-flows';
+            const FLOW_PAGE_KEY = (()=>{
+                const isFlowPage = !!document.querySelector('main.flow-page');
+                if(!isFlowPage) return null;
+                const page = (window.location.pathname || '').split('/').pop() || '';
+                const base = page ? page.replace(/\.[^/.]+$/, '') : '';
+                return base ? `page:${base}` : null;
+            })();
+            const PAGE_NOTES_KEY = FLOW_PAGE_KEY || 'page:maintain-finance-master-data-process-flows';
 
             // Ensure a page-level notes button exists on the Process Flows page (outside the diagram)
             function ensurePageNotesButton(){
-                const isProcessFlows = !!document.querySelector('main.flow-page') && /Maintain Finance Master Data/i.test(document.title);
-                if(!isProcessFlows) return;
+                const isProcessFlows = !!document.querySelector('main.flow-page');
+                if(!isProcessFlows || !PAGE_NOTES_KEY) return;
                 const host = document.querySelector('.diagram-wrapper');
                 if(!host) return;
                 // Create toolbar above diagram
@@ -300,8 +307,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Ensure a Notes Summary button sits to the right of Notes
             function ensureNotesSummaryButton(){
-                const isProcessFlows = !!document.querySelector('main.flow-page') && /Maintain Finance Master Data/i.test(document.title);
-                if(!isProcessFlows) return;
+                const isProcessFlows = !!document.querySelector('main.flow-page');
+                if(!isProcessFlows || !PAGE_NOTES_KEY) return;
                 const bar = document.getElementById('flowToolbar');
                 if(!bar) return; // created by ensurePageNotesButton
                 let sBtn = document.getElementById('notesSummaryBtn');
@@ -318,11 +325,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         let notes = {};
                         try { notes = await api.getNotes(currentWorkspaceId); } catch { notes = currentNotes || {}; }
                         const general = (notes && notes[PAGE_NOTES_KEY]) ? String(notes[PAGE_NOTES_KEY]).trim() : '';
+                        const layout = window.R2R_LAYOUT;
+                        const nodeIds = (layout && Array.isArray(layout.nodes)) ? new Set(layout.nodes.map(n=>String(n.id))) : new Set();
                         const entries = Object.entries(notes||{})
-                            .filter(([k,v])=> k !== PAGE_NOTES_KEY && v && String(v).trim());
+                            .filter(([k,v])=> k !== PAGE_NOTES_KEY && v && String(v).trim() && (nodeIds.size ? nodeIds.has(String(k)) : true));
                         // Map IDs to titles using the layout if available
                         const getTitle = (id)=>{
-                            const layout = window.R2R_LAYOUT;
                             if(layout && Array.isArray(layout.nodes)){
                                 const n = layout.nodes.find(x=> String(x.id) === String(id));
                                 return n?.title || n?.label || n?.name || n?.text || String(id);

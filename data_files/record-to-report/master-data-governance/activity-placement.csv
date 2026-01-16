@@ -1,0 +1,106 @@
+Category,Note
+Journal Entry,Check for duplicates
+Journal Entry,Archive old entries
+Journal Entry,Align templates
+Journal Entry,Review access rights
+Journal Entry,Notify approvers
+Journal Entry,Document assumptions
+Reconciliation,Monthly review
+Reconciliation,Escalate aging >60d
+Reconciliation,Enforce cut-off
+Reconciliation,Attach evidence
+Reconciliation,Peer review required
+Reconciliation,Clarify ownership
+Financial Close,Year-end only
+Financial Close,Publish timeline
+Financial Close,Communicate dependencies
+Financial Close,Pre-close checklist
+Financial Close,Perform variance walk
+Financial Close,Update runbook
+Reporting,Quarterly update
+Reporting,Lock versions
+Reporting,Validate links
+Reporting,Refresh pivots
+Reporting,Collect narratives
+Reporting,Sanity check totals
+Intercompany,Review agreements
+Intercompany,Confirm balances
+Intercompany,Align rates
+Intercompany,Finalize netting
+Intercompany,Chase confirmations
+Intercompany,Record reclasses
+Fixed Assets,Physical verification
+Fixed Assets,Update asset register
+Fixed Assets,Schedule tags
+Fixed Assets,Check insurance
+Fixed Assets,Post impairments
+Fixed Assets,Run depreciation
+Accounts Reconciliation,Escalate issues
+Accounts Reconciliation,Validate mappings
+Accounts Reconciliation,Review thresholds
+Accounts Reconciliation,Consolidate templates
+Accounts Reconciliation,Reduce manual steps
+Accounts Reconciliation,Track SLAs
+Master Data & Governance,Define ownership
+Master Data & Governance,Set up validation rules
+General Accounting and Reporting,Automate accruals
+General Accounting and Reporting,Schedule recurring journals
+Intercompany Accounting,Sync FX rates
+Intercompany Accounting,Confirm counterparty balances
+Fixed Assets Accounting,Reconcile sub-ledger
+Fixed Assets Accounting,Run depreciation
+Tax & Transfer Pricing,Review rate changes
+Tax & Transfer Pricing,Validate transfer prices
+Month End Close,Pre-close review
+Month End Close,Publish status tracker
+Balance Sheet Account Reconciliation,Auto-match transactions
+Balance Sheet Account Reconciliation,Escalate ageing items
+Consolidation and Reporting,Validate mapping rules
+Consolidation and Reporting,Run eliminations
+Compliance,Update control matrix
+Compliance,Log exceptions
+Master Data & Governance,Define data domains
+Master Data & Governance,Publish golden record rules
+Master Data & Governance,Enable self-service workflows
+Master Data & Governance,Add source-system validations
+Master Data & Governance,Monitor data quality KPIs
+General Accounting and Reporting,Create standard JE templates
+General Accounting and Reporting,Enable JE auto-approval rules
+General Accounting and Reporting,Reconcile suspense accounts daily
+General Accounting and Reporting,Roll forward recurring entries
+General Accounting and Reporting,Post auto-reversals
+Intercompany Accounting,Schedule netting cycles
+Intercompany Accounting,Align month-end timelines
+Intercompany Accounting,Load FX rates centrally
+Intercompany Accounting,Track confirmations
+Intercompany Accounting,Resolve disputes queue
+Fixed Assets Accounting,Review WIP balances
+Fixed Assets Accounting,Validate capitalization dates
+Fixed Assets Accounting,Audit useful life settings
+Fixed Assets Accounting,Plan physical verification
+Fixed Assets Accounting,Attach support to disposals
+Tax & Transfer Pricing,Update rate tables
+Tax & Transfer Pricing,Validate intercompany markups
+Tax & Transfer Pricing,Collect documentation
+Tax & Transfer Pricing,Monitor filing calendar
+Tax & Transfer Pricing,Reconcile tax balances
+Month End Close,Finalize timeline
+Month End Close,Assign owners
+Month End Close,Send reminders
+Month End Close,Run pre-close checks
+Month End Close,Escalate delays
+Balance Sheet Account Reconciliation,Prioritize high-risk accounts
+Balance Sheet Account Reconciliation,Run auto-match
+Balance Sheet Account Reconciliation,Create recon tasks
+Balance Sheet Account Reconciliation,Upload substantiation
+Balance Sheet Account Reconciliation,Review exceptions
+Consolidation and Reporting,Run pre-consolidation checks
+Consolidation and Reporting,Load mapping rules
+Consolidation and Reporting,Execute eliminations
+Consolidation and Reporting,Validate results
+Consolidation and Reporting,Publish reports
+Compliance,Perform control testing
+Compliance,Document deviations
+Compliance,Raise remediation tickets
+Compliance,Verify remediation
+Compliance,Close issues

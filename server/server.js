@@ -25,8 +25,24 @@ const __dirname = dirname(__filename);
 const DATA_DIR = join(__dirname, 'data');
 if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 const DB_PATH = join(DATA_DIR, 'r2r.sqlite');
-const DATA_FILES_DIR = join(__dirname, '..', 'data_files');
-const GOV_POLICY_DIR = join(DATA_FILES_DIR, '01-governance-policy-framework');
+const DATA_FILES_DIR = join(__dirname, '..', 'data_files', 'record-to-report', 'master-data-governance');
+const GOV_POLICY_DIR = join(DATA_FILES_DIR, 'governance-policy-framework');
+const GAR_DELIVERY_ENABLERS_DIR = join(__dirname, '..', 'data_files', 'record-to-report', 'general-accounting-reporting', 'delivery-enablers');
+const GAR_GOV_POLICY_DIR = join(GAR_DELIVERY_ENABLERS_DIR, 'governance-policy-framework');
+const GAR_LEADING_PRACTICES_DIR = join(GAR_DELIVERY_ENABLERS_DIR, 'leading-practices-delivery-enablers');
+const GAR_MASTER_DATA_ANALYTICS_DIR = join(GAR_DELIVERY_ENABLERS_DIR, 'master-data-analytics-layer');
+const GAR_RISK_COMPLIANCE_DIR = join(GAR_DELIVERY_ENABLERS_DIR, 'risk-compliance-audit-trail');
+const GAR_OPERATING_MODEL_DIR = join(__dirname, '..', 'data_files', 'record-to-report', 'general-accounting-reporting', 'operating-model-capability-enablement');
+const GAR_DIGITAL_ENABLERS_DIR = join(__dirname, '..', 'data_files', 'record-to-report', 'general-accounting-reporting', 'digital-enablers-automation-layer');
+const FILE_ROOTS = new Map([
+  ['mdg-gov', GOV_POLICY_DIR],
+  ['gar-gov', GAR_GOV_POLICY_DIR],
+  ['gar-leading', GAR_LEADING_PRACTICES_DIR],
+  ['gar-analytics', GAR_MASTER_DATA_ANALYTICS_DIR],
+  ['gar-risk', GAR_RISK_COMPLIANCE_DIR],
+  ['gar-operating', GAR_OPERATING_MODEL_DIR],
+  ['gar-digital', GAR_DIGITAL_ENABLERS_DIR]
+]);
 const WOPI_TOKEN = process.env.WOPI_TOKEN || 'dev-token';
 const WOPI_LOCKS = new Map();
 const COLLABORA_BASE = process.env.COLLABORA_BASE || 'http://localhost:9980';
@@ -269,9 +285,9 @@ function safeResolve(baseDir, targetPath) {
   return resolved;
 }
 
-function listOfficeFiles(rootDir) {
+function listOfficeFiles(rootDir, rootKey) {
   const files = [];
-  const allowed = new Set(['.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx', '.xlsm', '.pptm', '.docm']);
+  const openable = new Set(['.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx', '.xlsm', '.pptm', '.docm']);
   function scanDir(dir) {
     const items = readdirSync(dir);
     for (const item of items) {
@@ -281,16 +297,15 @@ function listOfficeFiles(rootDir) {
         scanDir(fullPath);
       } else {
         const ext = extname(item).toLowerCase();
-        if (allowed.has(ext)) {
-          const relPath = relative(rootDir, fullPath).replace(/\\/g, '/');
-          const id = Buffer.from(relPath).toString('base64url');
-          files.push({
-            name: item,
-            path: relPath,
-            type: ext.slice(1),
-            id
-          });
-        }
+        const relPath = relative(rootDir, fullPath).replace(/\\/g, '/');
+        const id = Buffer.from(rootKey ? `${rootKey}:${relPath}` : relPath).toString('base64url');
+        files.push({
+          name: item,
+          path: relPath,
+          type: ext.slice(1),
+          canOpen: openable.has(ext),
+          id
+        });
       }
     }
   }
@@ -299,7 +314,37 @@ function listOfficeFiles(rootDir) {
 }
 
 app.get('/api/governance-policy-files', (req, res) => {
-  const files = listOfficeFiles(GOV_POLICY_DIR);
+  const files = listOfficeFiles(GOV_POLICY_DIR, 'mdg-gov');
+  res.json(files);
+});
+
+app.get('/api/gar-governance-policy-files', (req, res) => {
+  const files = listOfficeFiles(GAR_GOV_POLICY_DIR, 'gar-gov');
+  res.json(files);
+});
+
+app.get('/api/gar-leading-practices-files', (req, res) => {
+  const files = listOfficeFiles(GAR_LEADING_PRACTICES_DIR, 'gar-leading');
+  res.json(files);
+});
+
+app.get('/api/gar-master-data-analytics-files', (req, res) => {
+  const files = listOfficeFiles(GAR_MASTER_DATA_ANALYTICS_DIR, 'gar-analytics');
+  res.json(files);
+});
+
+app.get('/api/gar-risk-compliance-files', (req, res) => {
+  const files = listOfficeFiles(GAR_RISK_COMPLIANCE_DIR, 'gar-risk');
+  res.json(files);
+});
+
+app.get('/api/gar-operating-model-files', (req, res) => {
+  const files = listOfficeFiles(GAR_OPERATING_MODEL_DIR, 'gar-operating');
+  res.json(files);
+});
+
+app.get('/api/gar-digital-enablers-files', (req, res) => {
+  const files = listOfficeFiles(GAR_DIGITAL_ENABLERS_DIR, 'gar-digital');
   res.json(files);
 });
 
@@ -336,10 +381,17 @@ function verifyWopiToken(req, res) {
   return true;
 }
 
-function getGovFilePathFromId(id) {
+function getFilePathFromId(id) {
   try {
-    const relPath = Buffer.from(String(id), 'base64url').toString('utf8');
-    return safeResolve(GOV_POLICY_DIR, relPath);
+    const decoded = Buffer.from(String(id), 'base64url').toString('utf8');
+    if (decoded.includes(':')) {
+      const [rootKey, ...rest] = decoded.split(':');
+      const relPath = rest.join(':');
+      const rootDir = FILE_ROOTS.get(rootKey);
+      if (!rootDir) return null;
+      return safeResolve(rootDir, relPath);
+    }
+    return safeResolve(GOV_POLICY_DIR, decoded);
   } catch {
     return null;
   }
@@ -347,7 +399,7 @@ function getGovFilePathFromId(id) {
 
 app.get('/wopi/files/:id', (req, res) => {
   if (!verifyWopiToken(req, res)) return;
-  const filePath = getGovFilePathFromId(req.params.id);
+  const filePath = getFilePathFromId(req.params.id);
   if (!filePath || !existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
   const stat = statSync(filePath);
   const fileName = basename(filePath);
@@ -367,7 +419,7 @@ app.get('/wopi/files/:id', (req, res) => {
 
 app.all('/wopi/files/:id/contents', express.raw({ type: '*/*', limit: '100mb' }), (req, res) => {
   if (!verifyWopiToken(req, res)) return;
-  const filePath = getGovFilePathFromId(req.params.id);
+  const filePath = getFilePathFromId(req.params.id);
   if (!filePath || !existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
 
   const override = req.header('X-WOPI-Override');
@@ -427,6 +479,48 @@ app.get('/api/governance-policy-files/open/:filename(*)', (req, res) => {
 app.get('/api/governance-policy-files/download/:filename(*)', (req, res) => {
   const filename = decodeURIComponent(req.params.filename || '');
   const fullPath = safeResolve(GOV_POLICY_DIR, filename);
+  if (!fullPath || !existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
+  res.download(fullPath);
+});
+
+app.get('/api/gar-governance-policy-files/download/:filename(*)', (req, res) => {
+  const filename = decodeURIComponent(req.params.filename || '');
+  const fullPath = safeResolve(GAR_GOV_POLICY_DIR, filename);
+  if (!fullPath || !existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
+  res.download(fullPath);
+});
+
+app.get('/api/gar-leading-practices-files/download/:filename(*)', (req, res) => {
+  const filename = decodeURIComponent(req.params.filename || '');
+  const fullPath = safeResolve(GAR_LEADING_PRACTICES_DIR, filename);
+  if (!fullPath || !existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
+  res.download(fullPath);
+});
+
+app.get('/api/gar-master-data-analytics-files/download/:filename(*)', (req, res) => {
+  const filename = decodeURIComponent(req.params.filename || '');
+  const fullPath = safeResolve(GAR_MASTER_DATA_ANALYTICS_DIR, filename);
+  if (!fullPath || !existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
+  res.download(fullPath);
+});
+
+app.get('/api/gar-risk-compliance-files/download/:filename(*)', (req, res) => {
+  const filename = decodeURIComponent(req.params.filename || '');
+  const fullPath = safeResolve(GAR_RISK_COMPLIANCE_DIR, filename);
+  if (!fullPath || !existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
+  res.download(fullPath);
+});
+
+app.get('/api/gar-operating-model-files/download/:filename(*)', (req, res) => {
+  const filename = decodeURIComponent(req.params.filename || '');
+  const fullPath = safeResolve(GAR_OPERATING_MODEL_DIR, filename);
+  if (!fullPath || !existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
+  res.download(fullPath);
+});
+
+app.get('/api/gar-digital-enablers-files/download/:filename(*)', (req, res) => {
+  const filename = decodeURIComponent(req.params.filename || '');
+  const fullPath = safeResolve(GAR_DIGITAL_ENABLERS_DIR, filename);
   if (!fullPath || !existsSync(fullPath)) return res.status(404).json({ error: 'File not found' });
   res.download(fullPath);
 });

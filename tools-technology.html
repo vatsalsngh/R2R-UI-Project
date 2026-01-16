@@ -30,7 +30,7 @@
         <h1 class="section-title" id="pageTitle" style="margin-top:0;">Tools &amp; Technology</h1>
         <p id="flowSubtitle" style="text-align:center;color:var(--muted);max-width:860px;margin:0.35rem auto 1.5rem;font-weight:500;">Explore enabling platforms and automation.</p>
         <div class="options-grid compact" role="list">
-            <div class="option-card" role="listitem"><span class="option-icon">🤖</span><span class="option-title t-85">Digital Enablers &amp; Automation Layer</span><span class="option-desc t-65">Platforms, tooling, and automation stack</span></div>
+            <a class="option-card" role="listitem" id="toolsDigitalEnablersLink" href="#"><span class="option-icon">🤖</span><span class="option-title t-85">Digital Enablers &amp; Automation Layer</span><span class="option-desc t-65">Platforms, tooling, and automation stack</span></a>
         </div>
         <div class="nav-controls"><button onclick="window.history.back()">Go Back</button></div>
     </main>
@@ -57,6 +57,11 @@
                     text.textContent = flow;
                     text.style.display = 'inline';
                 }
+            }
+
+            if (/General Accounting and Reporting/i.test(flow || '')) {
+                const digitalLink = document.getElementById('toolsDigitalEnablersLink');
+                if (digitalLink) digitalLink.href = 'gar-digital-enablers-automation-layer.html';
             }
         })();
     </script>

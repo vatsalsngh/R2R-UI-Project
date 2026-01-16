@@ -22,9 +22,16 @@
   // Restore transform
   // Zoom persistence removed
 
+  const getLayoutPath = () => {
+    const fromSvg = svg?.dataset?.layout;
+    const fromBody = document.body?.dataset?.layout;
+    return fromSvg || fromBody || 'data_files/record-to-report/master-data-governance/r2r-layout.json';
+  };
+
   const fetchLayout = async () => {
     try {
-      const resp = await fetch('data/r2r-layout.json');
+      const layoutPath = getLayoutPath();
+      const resp = await fetch(layoutPath);
       if(!resp.ok) throw new Error('Layout fetch failed');
       return await resp.json();
     } catch(e){ console.error(e); announce('Failed to load layout'); throw e; }
